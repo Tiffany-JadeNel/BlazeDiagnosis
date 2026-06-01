@@ -1,65 +1,36 @@
-# Cyber Security Analyst Learning Path
+# Cyber Security Learning Path
 
-## Week 1 Focus
+## Primary Goal
 
-- Web application security basics
-- OWASP Top 10 awareness
+Support the Blaze Diagnostics project by identifying security risks, improving security awareness, and documenting practical controls for a workshop management and client communication system.
+
+## Study Focus
+
+- OWASP Top 10
 - Authentication and authorization
 - Role-based access control
-- Customer data exposure risks
-- GitHub secret safety
+- Customer data protection
 - API security basics
-- Clear security reporting
+- Environment variable and secret safety
+- GitHub repository security hygiene
+- Secure error handling
+- Threat modelling basics
+- Security findings and recommendations
 
-## Priority Files to Review
+## Start With
 
-- `docs/access-control.md`
-- `docs/api-contracts.md`
-- `docs/security/STUDENT_SECURITY_RULES.md`
-- `docs/security/SECURITY_REVIEW_CHECKLIST.md`
-- `backend/src/shared/middleware/auth.ts`
-- `backend/src/shared/middleware/authorization.ts`
-- `backend/src/shared/middleware/tenant-scope.ts`
-- `.env.example`
-- `backend/.env.example`
-- `frontend/.env.example`
-- `.gitignore`
+1. `docs/security/STUDENT_SECURITY_RULES.md`
+2. `docs/security/SECURITY_REVIEW_CHECKLIST.md`
+3. `docs/access-control.md`
+4. `docs/api-contracts.md`
+5. `docs/product/DOMAIN_GLOSSARY.md`
 
-## Starter Tasks
+## Suitable Starter Tasks
 
-- Check that `.env` files are ignored.
-- Review what customer data exists in the schema.
-- Identify where role-based access is required.
-- Create a security checklist for customer tracking links.
-- Review API contracts for access-control risks.
-- Document possible risks in quote approval flows.
-- Document safe testing boundaries.
-
-## Security Report Format
-
-```markdown
-# Security Finding
-
-## Area Reviewed
-
-## Risk Level
-Low / Medium / High
-
-## Finding
-
-## Why It Matters
-
-## Recommended Fix
-
-## Evidence
-
-## Notes
-```
-
-## Rules
-
-- Do not test production systems.
-- Do not attack third-party systems.
-- Do not attempt password guessing.
-- Do not access data you were not given permission to access.
-- Report risks clearly and professionally.
+- Create a customer data risk checklist.
+- Review role-based access requirements.
+- Check whether `.env` files are ignored.
+- Identify what customers should not be able to access.
+- Draft a simple threat model for quote approvals and customer tracking links.
+- Review error messages for sensitive data leakage risks.
+- Prepare a security report using clear, practical language.

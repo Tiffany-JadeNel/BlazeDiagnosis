@@ -1,46 +1,55 @@
 # Student Information Form
 
-Students should complete this information and send it through the agreed communication channel.
+Please complete this information and send it through the agreed communication channel.
 
 ## Personal Details
 
 - Full name:
 - Email address:
-- Phone number, optional:
+- Contact number, if required:
 - CTU course:
 - Year of study:
-- Full-time or part-time student:
+
+## Internship Group
+
+Select the group that applies to you:
+
+- Software Engineering 1
+- Software Engineering 2
+- Software Development 1
+- Software Development 2
+- Cloud Administration
+- Cyber Security
+- Architectural Draughting, Synergy Inc. repository only
 
 ## Availability
 
+- Full-time or part-time student:
 - General weekly availability:
-- Preferred times for informal virtual check-ins:
+- Preferred times for informal check-ins:
 - Exam dates or study commitments:
-- Any known weeks where availability will be limited:
+- Any days/times you are not available:
 
-## Role and Skill Area
-
-Select the closest group:
-
-- Software Developer / Software Engineer
-- Cyber Security Analyst
-- CAD Student working in separate Synergy Inc. repository
-
-## Technical Readiness
+## Technical Preparation
 
 - GitHub username:
-- Have you used Git before? Yes / No
-- Have you used GitHub before? Yes / No
-- Have you used TypeScript before? Yes / No
-- Have you used React or Next.js before? Yes / No
-- Have you used PostgreSQL before? Yes / No
-- Have you used Prisma before? Yes / No
-- Have you used Drizzle before? Yes / No
-- Have you worked with API testing tools such as Postman or Insomnia? Yes / No
+- Do you have Git installed?
+- Do you have Visual Studio Code installed?
+- Do you have Node.js installed?
+- Do you have access to a computer suitable for the internship?
+- What tools have you used before?
+- Which technologies are new to you?
+
+## Project Interest
+
+- Blaze Diagnostics App
+- Synergy Inc.
+- Both, if relevant
 
 ## Learning Goals
 
-- What do you want to learn during the internship?
-- Which part of the Blaze Diagnostics project interests you most?
-- What do you feel least confident about?
-- What tools do you already have installed?
+Briefly answer:
+
+- What do you want to learn during this internship?
+- What are you already comfortable with?
+- What do you need help with first?

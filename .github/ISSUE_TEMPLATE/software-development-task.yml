@@ -1,0 +1,33 @@
+name: Software Development task
+description: Task for Software Development 1 or 2 students
+title: "[Software Development]: "
+labels: ["software-development", "frontend", "needs-review"]
+body:
+  - type: dropdown
+    id: group
+    attributes:
+      label: Student group
+      options:
+        - Software Development 1
+        - Software Development 2
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Task goal
+      description: What should be built, updated, tested, or documented?
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Relevant files or folders
+      description: List files/folders the student should inspect.
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: What must be true before the task is complete?
+    validations:
+      required: true

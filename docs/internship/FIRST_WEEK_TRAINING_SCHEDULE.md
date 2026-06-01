@@ -1,126 +1,157 @@
-# First Week Training Schedule
+# First Week Remote Training Schedule
 
-The first week is focused on training, setup, and understanding the Blaze Diagnostics technology stack. It is flexible because the internship is remote and students have different schedules.
+The first week is mainly training and preparation. Meetings are not fixed for the whole group because students have different schedules. Informal talks and check-ins will be arranged based on availability.
 
-## Day 1: Orientation and Repository Familiarity
+Students should work through the relevant material for their group and provide short progress updates.
 
-### Goals
+## Day 1: Remote Onboarding and Availability Confirmation
 
-- Understand the remote internship format.
-- Understand the purpose of Blaze Diagnostics.
-- Submit student information and availability.
-- Become familiar with the repository structure.
-
-### Tasks
+### All Students
 
 - Read `STUDENT_START_HERE.md`.
-- Read `README.md`.
-- Read `docs/internship/REMOTE_INTERNSHIP_PLAN.md`.
-- Complete `docs/internship/STUDENT_INFORMATION_FORM.md`.
-- Create or confirm your GitHub account.
-- Review the `backend/`, `frontend/`, and `docs/` folders.
+- Read the remote internship plan.
+- Complete the student information form.
+- Confirm your GitHub username.
+- Confirm your availability and exam/study commitments.
+- Identify your internship group.
 
 ### Outcome
 
-You should understand what the project is, where files are stored, and what information you need to provide before tasks can be assigned.
+Each student has confirmed their group, availability, GitHub username, and first questions.
 
----
+## Day 2: GitHub, Repository Structure, and Communication
 
-## Day 2: GitHub Workflow Training
-
-### Goals
-
-- Learn the version control workflow used by the project.
-- Understand branches, commits, pull requests, and reviews.
-
-### Tasks
+### All Students
 
 - Read `docs/training/GITHUB_WORKFLOW.md`.
-- Create a practice branch if permitted.
-- Make a small documentation-only change if assigned.
-- Open a practice pull request if assigned.
-- Review the pull request template.
+- Learn the difference between repository, branch, commit, push, pull request, and review.
+- Review the project folder structure.
+- Practise writing a clear progress update.
+
+### Software Engineering and Software Development
+
+- Review frontend and backend folder structure.
+- Identify where components, services, types, schemas, and API wrappers are stored.
+
+### Cloud Administration
+
+- Review `.env.example`, `docker-compose.yml`, package scripts, and repository setup requirements.
+
+### Cyber Security
+
+- Review security rules, `.gitignore`, `.env.example`, and access-control documents.
 
 ### Outcome
 
-You should understand how code and documentation changes are submitted for review.
+Students understand how work will be organised and reviewed through GitHub.
 
----
+## Day 3: Blaze Diagnostics Technology Stack Fundamentals
 
-## Day 3: Frontend Stack Training
+### Software Engineering 1
 
-### Goals
+- Review TypeScript basics.
+- Review system entities: users, workshops, customers, vehicles, jobs, quotes, parts, invoices.
+- Read API contracts and database schema notes.
+- Focus on understanding how the system fits together.
 
-- Understand the frontend stack.
-- Learn the basics of TypeScript, React, Next.js, and Tailwind CSS.
+### Software Engineering 2
 
-### Software Student Tasks
+- Review backend module structure.
+- Review Prisma/ORM decision note.
+- Review API contract structure.
+- Study database relationships and role-based access.
 
-- Read `docs/training/TECH_STACK_TRAINING.md`.
-- Review `frontend/src/app/page.tsx`.
-- Review shared components in `frontend/src/components/`.
-- Review feature folders in `frontend/src/features/`.
-- Learn what a component, prop, hook, and route are.
-- Learn basic Tailwind CSS utility classes.
+### Software Development 1
 
-### Cyber Security Student Tasks
+- Review HTML, CSS, JavaScript, TypeScript basics.
+- Review React components and props.
+- Review Tailwind CSS basics.
+- Inspect existing frontend feature panels.
 
-- Learn basic browser, HTTP, and frontend security concepts.
-- Understand where customer-facing data could be exposed.
-- Read `docs/security/STUDENT_SECURITY_RULES.md`.
+### Software Development 2
 
-### Outcome
+- Review Next.js project structure.
+- Review API client and service endpoint files.
+- Study feature folders and typed models.
+- Review forms, validation, and data flow.
 
-You should be able to explain the basic structure of the frontend application.
+### Cloud Administration
 
----
+- Review local environment setup.
+- Learn the purpose of Docker, Postgres, Redis, environment variables, and CI.
+- Identify what is needed for a repeatable local setup.
 
-## Day 4: Backend, Database, and API Training
+### Cyber Security
 
-### Goals
-
-- Understand the backend module structure.
-- Understand PostgreSQL and ORM basics.
-- Understand API contracts and access control basics.
-
-### Software Student Tasks
-
-- Read `docs/backend-module-map.md`.
-- Read `docs/api-contracts.md`.
-- Read `docs/database-schema.md`.
-- Review `backend/src/modules/customers/`.
-- Review `backend/src/modules/jobs/`.
-- Review `backend/prisma/schema.prisma`.
-- Read `docs/technical/ORM_DECISION_NOTE.md`.
-
-### Cyber Security Student Tasks
-
-- Read `docs/access-control.md`.
-- Review middleware files in `backend/src/shared/middleware/`.
-- Review `docs/security/SECURITY_REVIEW_CHECKLIST.md`.
+- Review OWASP Top 10.
+- Review authentication, authorization, role-based access, and customer data risks.
+- Read the security checklist.
 
 ### Outcome
 
-You should understand how the backend is organised and how customer, vehicle, job, quote, and invoice data connects.
+Each student has started learning their group-specific stack and has a list of questions.
 
----
+## Day 4: Database, API, Deployment, and Security Concepts
+
+### Software Engineering 1
+
+- Map the main business entities and relationships.
+- Identify simple user stories and acceptance criteria.
+- Document questions about system flow.
+
+### Software Engineering 2
+
+- Review database schema and repositories.
+- Identify gaps between current code and MVP requirements.
+- Propose implementation order for backend features.
+
+### Software Development 1
+
+- Practise reading simple components.
+- Identify reusable UI elements such as cards, tables, forms, and status badges.
+- Create notes on how Tailwind classes are used.
+
+### Software Development 2
+
+- Trace one feature from page to component to API wrapper.
+- Identify where form validation should happen.
+- Identify simple frontend tasks suitable for first implementation.
+
+### Cloud Administration
+
+- Document environment variables.
+- Check Docker setup requirements.
+- Review GitHub Actions or CI placeholder.
+- Prepare a first draft deployment and environment checklist.
+
+### Cyber Security
+
+- Review possible customer access risks.
+- Identify what data customers should and should not see.
+- Start a simple threat model for the Blaze Diagnostics app.
+
+### Outcome
+
+Students understand how their role connects to the project workflow.
 
 ## Day 5: Starter Task Preparation
 
-### Goals
+### All Students
 
-- Prepare for assigned tasks.
-- Understand the first backlog items.
-- Identify questions and blockers.
+- Confirm your first assigned issue or starter task.
+- Create or prepare to create a working branch.
+- Ask setup or task questions.
+- Submit a short weekly progress update.
 
-### Tasks
+### Possible First Deliverables
 
-- Read `docs/backlog/MVP_USER_STORIES.md`.
-- Read `docs/backlog/STUDENT_STARTER_TASKS.md`.
-- Pick three tasks you feel confident trying and three tasks where you would need help.
-- Prepare questions for an informal discussion.
-- Submit a first weekly progress update using `docs/internship/WEEKLY_PROGRESS_UPDATE_TEMPLATE.md`.
+- Software Engineering 1: system entity notes or user story review.
+- Software Engineering 2: schema/API gap analysis or backend task plan.
+- Software Development 1: simple UI component or page review.
+- Software Development 2: frontend feature improvement or API integration note.
+- Cloud Administration: local setup checklist or deployment plan draft.
+- Cyber Security: security checklist or customer access risk note.
 
 ### Outcome
 
-You should be ready to receive a small guided task in GitHub Issues.
+The first training phase is complete and students are ready for guided project work.

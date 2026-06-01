@@ -1,0 +1,33 @@
+name: Software Engineering task
+description: Task for Software Engineering 1 or 2 students
+title: "[Software Engineering]: "
+labels: ["software-engineering", "needs-review"]
+body:
+  - type: dropdown
+    id: group
+    attributes:
+      label: Student group
+      options:
+        - Software Engineering 1
+        - Software Engineering 2
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Task goal
+      description: What should be achieved?
+    validations:
+      required: true
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist
+      description: List the steps or acceptance criteria.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes or links
+      description: Add related docs, files, or context.

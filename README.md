@@ -1,134 +1,79 @@
-# Vehicle Service Platform Skeleton
+# Blaze Diagnostics App
 
-This archive contains a delivery-oriented starter skeleton for the vehicle service SaaS platform.
+Blaze Diagnostics is a workshop management and customer communication system for mechanical workshops.
 
-## What is now implemented
-- Auth starter flow with login and forgot-password service/controller logic
-- Customer CRUD starter service/controller/repository pattern
-- Vehicle CRUD starter service/controller/repository pattern
-- Job creation and status-history starter workflow
-- Quote creation, totals calculation, public token generation, and approve/reject starter workflow
-- In-memory demo store to let developers trace the full vertical slice quickly
-- Frontend feature panels for dashboard, customers, vehicles, jobs, and quotes
-- API wrappers aligned to the starter backend contracts
+The system is intended to improve communication between workshops and clients by tracking vehicle jobs, quote approvals, parts ordering, parts delivery, mechanic progress, invoicing, and collection readiness.
 
-## Still intentionally placeholder
-- Real HTTP server and routing framework
-- Persistent database integration through Prisma repository implementations
-- Queue workers, notifications, invoices, payments, inspections, and collection flows
-- Authentication hardening, password hashing, and session persistence
-- Full design system and production-grade frontend state management
+## Current Technical Stack
 
-## Architecture summary
-- Frontend: Next.js / React / TypeScript
-- Backend: Node.js / TypeScript / Express-style modular monolith pattern
+- Frontend: Next.js, React, TypeScript, Tailwind CSS
+- Backend: Node.js, TypeScript, modular service/controller/repository structure
 - Database: PostgreSQL
-- ORM: Prisma
-- Queue/events: Redis/BullMQ-compatible placeholder structure
+- Current ORM in the uploaded app: Prisma
+- Earlier planning referenced: Drizzle ORM
+- Version control: GitHub
 
-## Suggested implementation order
-1. Replace the in-memory repositories with Prisma-backed repositories.
-2. Introduce a real router layer and map controller methods to HTTP endpoints.
-3. Add request validation middleware and tenant-aware auth middleware.
-4. Implement invoices, payments, notifications, inspections, and collection.
-5. Add supplier and marketplace domains only after Phase 1 is stable.
+Important: The current uploaded application uses Prisma. Do not assign Drizzle implementation work until the ORM direction has been confirmed. See `docs/technical/ORM_DECISION_NOTE.md`.
 
-## Demo credentials
-- Email: admin@demo-workshop.local
-- Password: demo1234
+## Student Groups Using This Repository
 
+This repository has been adjusted for the current CTU Bloemfontein internship groups:
 
-## Auth layer completed in starter
+- Software Engineering 1
+- Software Engineering 2
+- Software Development 1
+- Software Development 2
+- Cloud Administration
+- Cyber Security
 
-The starter now includes:
-- password hashing via Node crypto scrypt
-- signed access, refresh, and reset tokens
-- refresh session storage in the in-memory demo store
-- forgot password and reset password flow
-- authenticated `/api/auth/me` endpoint pattern
-- frontend auth API wrapper, local session storage, and interactive auth panel
+Architectural Draughting students should use the separate `synergy-inc-architectural-draughting` repository.
 
-### Demo credentials
-- Email: `admin@demo-workshop.local`
-- Password: `demo1234`
-
----
-
-## Repository bootstrap
-
-### Workspace layout
-- `backend/` API and domain modules
-- `frontend/` Next.js application
-- `docs/` product, API, schema, and planning documents
-- `.github/workflows/` CI placeholder
-
-### Quick start
-1. Copy `.env.example` to `.env`.
-2. Copy `backend/.env.example` to `backend/.env` if you want backend-local overrides.
-3. Copy `frontend/.env.example` to `frontend/.env.local`.
-4. Start local services with `docker-compose up -d`.
-5. Install dependencies in each workspace.
-6. Run `npm run db:generate`.
-7. Run `npm run db:migrate`.
-8. Run `npm run db:seed`.
-9. Start the backend with `npm run dev:backend`.
-10. Start the frontend with `npm run dev:frontend`.
-
-### Current repo foundation status
-- Root workspace scripts added.
-- Shared env templates added.
-- Docker local services added for Postgres and Redis.
-- Prisma generate/migrate/seed tooling added.
-- GitHub Actions CI placeholder added.
-
-### Still expected later
-- Real lint and test runners.
-- Root lockfile and dependency installation.
-- Production deploy workflows.
-- Secrets management per environment.
-- Prisma migration history generated from live schema updates.
-
----
-
-# Student Internship Additions
-
-This repository has been prepared for CTU Bloemfontein interns participating in the Blaze Web Works remote internship.
-
-## Where Interns Should Start
-
-Students should begin with:
+## Where Students Should Start
 
 1. `STUDENT_START_HERE.md`
 2. `docs/internship/REMOTE_INTERNSHIP_PLAN.md`
 3. `docs/internship/FIRST_WEEK_TRAINING_SCHEDULE.md`
 4. `docs/training/GITHUB_WORKFLOW.md`
-5. `docs/training/SOFTWARE_STUDENT_PATH.md` or `docs/training/CYBER_SECURITY_STUDENT_PATH.md`
-6. `docs/backlog/STUDENT_STARTER_TASKS.md`
+5. `docs/training/GROUP_LEARNING_PATHS.md`
+6. The learning path for your specific group in `docs/training/`
+7. `docs/backlog/STUDENT_STARTER_TASKS_BY_GROUP.md`
+8. `docs/backlog/BLAZE_DIAGNOSTICS_ISSUES_BY_GROUP.md`
 
-## Internship Groups
+## Repository Bootstrap
 
-Current groups supported by this repository:
+### Workspace Layout
 
-- Software Developers / Software Engineers
-- Cyber Security Analysts
+- `backend/` - API and domain modules
+- `frontend/` - Next.js application
+- `docs/` - product, API, schema, training, backlog, and internship documents
+- `.github/` - GitHub issue and pull request templates
 
-CAD students should use the separate Synergy Inc. CAD repository. Design students are not part of the current internship intake.
+### Quick Start
 
-## GitHub Workflow
+1. Copy `.env.example` to `.env`.
+2. Copy `backend/.env.example` to `backend/.env` if required.
+3. Copy `frontend/.env.example` to `frontend/.env.local`.
+4. Start local services with `docker-compose up -d`.
+5. Install dependencies in the required workspace.
+6. Run the relevant database generate/migrate/seed commands once confirmed by the mentor.
+7. Start the backend.
+8. Start the frontend.
 
-Students should not commit directly to `main`. Work should be completed on branches and submitted using pull requests.
+## Student GitHub Workflow
 
-Recommended branch format:
+Students must not commit directly to `main`.
 
-```text
-student/<student-name>/<task-name>
-training/<student-name>/<topic>
-docs/<short-doc-name>
-fix/<short-bug-name>
-```
+Expected workflow:
 
-## Technical Alignment Note
+1. Read the issue.
+2. Create a branch.
+3. Make a small focused change.
+4. Test or review your work.
+5. Commit with a clear message.
+6. Push the branch.
+7. Open a pull request.
+8. Respond to review feedback.
 
-The existing repository currently uses Prisma for ORM/database workflow. Earlier planning referenced Drizzle ORM. The project owner or mentor should confirm whether the project will continue with Prisma or migrate to Drizzle before assigning database implementation tasks.
+## Security Rule
 
-See `docs/technical/ORM_DECISION_NOTE.md`.
+Never commit passwords, API keys, database URLs, tokens, `.env` files, personal credentials, or private customer information.

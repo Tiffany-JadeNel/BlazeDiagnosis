@@ -6,18 +6,20 @@ This file is the first file interns should read before working on the project.
 
 ## Project Purpose
 
-Blaze Diagnostics is a workshop management and customer communication system for mechanical workshops. The system should help workshops keep clients informed about vehicle progress, quote approvals, parts ordered, parts delivery, mechanic updates, invoicing, and collection readiness.
+Blaze Diagnostics is a workshop management and customer communication system for mechanical workshops. The system helps workshops keep clients informed about vehicle progress, quote approvals, parts ordered, parts delivery, mechanic updates, invoicing, and collection readiness.
 
-## Internship Groups Using This Repository
+## Current Internship Groups Using This Repository
 
 This repository is intended for:
 
-- Software Developers / Software Engineers
-- Cyber Security Analysts
+- Software Engineering 1
+- Software Engineering 2
+- Software Development 1
+- Software Development 2
+- Cloud Administration
+- Cyber Security
 
-CAD students should use the separate Synergy Inc. CAD repository.
-
-Design students are not part of the current internship intake.
+Architectural Draughting students should use the separate Synergy Inc. Architectural Draughting repository.
 
 ## Remote Internship Format
 
@@ -38,9 +40,19 @@ You are expected to communicate clearly about:
 2. Read `docs/internship/REMOTE_INTERNSHIP_PLAN.md`.
 3. Complete `docs/internship/STUDENT_INFORMATION_FORM.md` and send your answers through the agreed channel.
 4. Read `docs/training/GITHUB_WORKFLOW.md`.
-5. Read the learning path for your group.
-6. Start the first-week training schedule in `docs/internship/FIRST_WEEK_TRAINING_SCHEDULE.md`.
-7. Do not start implementation work until your first task is assigned.
+5. Read `docs/training/GROUP_LEARNING_PATHS.md`.
+6. Read the learning path for your specific group.
+7. Start the first-week training schedule in `docs/internship/FIRST_WEEK_TRAINING_SCHEDULE.md`.
+8. Do not start implementation work until your first task is assigned.
+
+## Group Learning Paths
+
+- Software Engineering 1: `docs/training/SOFTWARE_ENGINEERING_1_PATH.md`
+- Software Engineering 2: `docs/training/SOFTWARE_ENGINEERING_2_PATH.md`
+- Software Development 1: `docs/training/SOFTWARE_DEVELOPMENT_1_PATH.md`
+- Software Development 2: `docs/training/SOFTWARE_DEVELOPMENT_2_PATH.md`
+- Cloud Administration: `docs/training/CLOUD_ADMINISTRATION_STUDENT_PATH.md`
+- Cyber Security: `docs/training/CYBER_SECURITY_STUDENT_PATH.md`
 
 ## Important Security Rule
 
