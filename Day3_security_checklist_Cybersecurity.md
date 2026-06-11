@@ -36,3 +36,41 @@ To protect workshop profitability, staff privacy, and operational security, cust
 #### 4. Shared Workshop Tablets 
 * **The Risk:** Mechanics log into shared shop tablets using admin accounts and leave them open. Customers or apprentices can then access sensitive business settings.
 * **Fix:** Set short session timeouts and auto-logout features for devices used on the workshop floor.
+
+### Environment and secret handling
+
+#### 1. Hardcoded Secrets
+* **The Risk:** Credentials may be exposed through source repositories.
+* **Fix:** Passwords, API keys and tokens should be kept in environment variables and not harcoded
+
+#### 2. Environment Variables
+* **The Risk:** Exposure of secrets in code files.
+* **Fix:** Passwords, API keys and tokens should be kept in environment variables and not harcoded or kept in code files
+
+#### 3. Source Control
+* **The Risk:** Secrets may become publicly available.
+* **Fix:** .env files should be excluded from Git repositries (added in the .gitignore file)
+
+#### 4. Access Permissions
+* **The Risk:** Unauthorized users may gain access.
+* **Fix:** Only authorized personell should have access to modify environmental variable and secrets
+
+#### 5. Secret Rotation
+* **The Risk:** Compromised credentials remain usable for long periods.
+* **Fix:** API keys should be changed regularly
+
+#### 6. Logging
+* **The Risk:** Sensitive data leakage.
+* **Fix:** Ensure that no secrets are accidentally written to logs or error messages
+
+#### 7. Encryption
+* **The Risk:** Exposure if systems are compromised.
+* **Fix:** Stored secrets should be encrypted
+
+#### 8. Backup Security
+* **The Risk:** Attackers may recover credentials from backups.
+* **Fix:** Backups containing secrets should be encrypted and protected.
+
+#### 9. Dployment Pipelines
+* **The Risk:** Credentials may be leaked during builds.
+* **Fix:** CI/CD secrets shuld be securely stored and injected during deployment
