@@ -1,3 +1,10 @@
+import React from 'react';
+import { InspectionsPanel } from '../components/InspectionsPanel';
+
 export default function InspectionsPage() {
-  return <div>Inspections feature placeholder</div>;
+  return (
+    <div className="p-6">
+      <InspectionsPanel />
+    </div>
+  );
 }
