@@ -17,4 +17,7 @@ export async function GET(
       { status: 400 },
     );
   }
+
+  const DB=getCustomerById(tenantId, id)
+  return NextResponse.json(DB)
 }
