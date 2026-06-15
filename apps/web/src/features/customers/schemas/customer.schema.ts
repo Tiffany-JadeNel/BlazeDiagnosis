@@ -16,6 +16,6 @@ export type CreateCustomerInput = z.infer<typeof createCustomerSchema>;
 // payload, enforcing required fields like firstName and lastName while keeping optional fields flexable. The use of .default('en')
 //  for preferredLocale is a thoughtful touch that prevents unnecessary boilerplate in upstream code. Overall, the schema in concise,
 // readable, and idiomatic-making it easy for other developers to understand the expected data contract at a glance and rely on strong 
-// runtime and compile-time guarentees.
+// runtime and compile-time guarentees..
 
 
