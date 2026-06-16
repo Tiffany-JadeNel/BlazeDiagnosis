@@ -18,6 +18,13 @@ export async function GET(
     );
   }
 
-  const DB=getCustomerById(tenantId, id)
-  return NextResponse.json(DB)
+  try {
+      const DB= await getCustomerById(tenantId, id)
+      return NextResponse.json(DB)
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Failed to fetch Customer details' },
+        { status: 500 },
+      );
+    }
 }
