@@ -1,10 +1,10 @@
-import { createCustomerSchema } from "@/features/customers/schemas/customer.schema";
-import { createCustomer } from "@/features/customers/services/customer.service";
-import { requireTenantContext } from "@/lib/tenancy/tenant-context";
 import { NextResponse } from "next/server";
+import { createPartsRequest } from "@/features/parts/services/parts.service";
+import { requireTenantContext } from "@/lib/tenancy/tenant-context";
 
 export async function GET(request: Request) {
   try {
+    // Extract tenantId from query string
     const { searchParams } = new URL(request.url);
     const tenantId = searchParams.get("tenantId");
 
@@ -15,14 +15,14 @@ export async function GET(request: Request) {
       );
     }
 
-    // TODO: Query the database for active/non‑archived customers
+    // TODO: Query the database for active/non‑archived parts requests
     // Example placeholder response:
     return NextResponse.json(
-      { message: "GET customers endpoint ready", tenantId },
+      { message: "GET parts requests endpoint ready", tenantId },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error fetching customers:", error);
+    console.error("Error fetching parts requests:", error);
     return NextResponse.json(
       { error: (error as Error).message },
       { status: 500 }
@@ -34,12 +34,19 @@ export async function POST(req: Request) {
   try {
     const tenant = await requireTenantContext();
     const body = await req.json();
-    const input = createCustomerSchema.parse(body);
-    const customer = await createCustomer(tenant.tenantId, input);
+    const { jobCardId, notes } = body;
 
-    return NextResponse.json(customer, { status: 201 });
+    if (!jobCardId) {
+      return NextResponse.json(
+        { error: "Missing required jobCardId parameter" },
+        { status: 400 }
+      );
+    }
+
+    const request = await createPartsRequest(tenant.tenantId, jobCardId, notes);
+    return NextResponse.json(request, { status: 201 });
   } catch (error) {
-    console.error("Error creating customer:", error);
+    console.error("Error creating parts request:", error);
     return NextResponse.json(
       { error: (error as Error).message },
       { status: 500 }
