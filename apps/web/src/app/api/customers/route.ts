@@ -5,6 +5,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/db/client';
 import { customers } from '@/db/schema/customers';
 import { and, eq } from 'drizzle-orm';
+import { ZodError } from 'zod';
 
 export async function GET(request: Request) {
     try {
@@ -57,6 +58,12 @@ export async function POST(req: Request) {
     const customer = await createCustomer(tenant.tenantId, input);
 
     return NextResponse.json(customer, { status: 201 });
+
+    // The catch block is designed to handle different types of errors that may occur during the execution of the POST request.
+    // If the error is a ZodError, it indicates that the input validation failed, and a 422 Unprocessable Entity status code is returned along with the validation error details.
+    // If the error is a general Error instance, it returns a 409 Conflict status code with the error message.
+    // For any other types of errors, it returns a 500 Internal Server Error status code with a generic error message.
+
   } catch (err) {
     if (err instanceof ZodError) {
       return NextResponse.json(
