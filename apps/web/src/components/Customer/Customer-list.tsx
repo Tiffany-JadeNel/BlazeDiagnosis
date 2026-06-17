@@ -37,3 +37,5 @@ export const CustomerList: React.FC = () => {
         </div>
     );
 };
+
+// TODO: Don't use curly braces for CSS values unless referencing a variable — writing style={{ border: "" }} is bad practice.
