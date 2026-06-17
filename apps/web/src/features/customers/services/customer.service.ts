@@ -12,10 +12,10 @@ export async function createCustomer(
   
   //TODO : Add duplicate check for email and phone number to prevent creating duplicate customers within the same tenant.
 
-    const whereCondition = input.phone
-    ? and(eq(customers.tenantId, tenantId), eq(customers.phone, input.phone))
-    : eq(customers.tenantId, tenantId);
-
+  const whereCondition = input.phone
+  ? and(eq(customers.tenantId, tenantId),eq(customers.phone, 
+    input.phone))
+      :eq(customers.tenantId, tenantId);
 
   const [existingPhone] = await db
     .select()
@@ -24,7 +24,7 @@ export async function createCustomer(
     .limit(1);
 
   if (existingPhone) {
-    throw new Error('A customer with the same phone number already exists in this tenant.');
+    throw new Error ('A customer with the same phone number already exists in this tenant.');
   }
 
   const [customer] = await db
