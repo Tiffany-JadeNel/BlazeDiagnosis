@@ -21,11 +21,11 @@ const db = drizzle(pool);
 const SYSTEM_TENANT_ID = '00000000-0000-0000-0000-000000000001';
 
 async function main() {
-  console.log('⏳ Starting isolated database seeding process...');
+  console.log(' Starting isolated database seeding process...');
 
   try {
     // 1. Create a foundational Global Testing Tenant
-    console.log('🏢 Seeding default developer tenant...');
+    console.log(' Seeding default developer tenant...');
     await db.insert(tenants).values({
       id: SYSTEM_TENANT_ID,
       name: 'Blaze POS Dev Workshop',
@@ -33,7 +33,7 @@ async function main() {
     }).onConflictDoNothing(); 
 
     // 2. Create sample Customer Profiles
-    console.log('👥 Seeding mock customer profiles...');
+    console.log(' Seeding mock customer profiles...');
     await db.insert(customers).values([
       {
         tenantId: SYSTEM_TENANT_ID,
@@ -50,7 +50,7 @@ async function main() {
     ]).onConflictDoNothing();
 
     // 3. Create initial structural Audit Trails
-    console.log('📜 Seeding baseline system audit records...');
+    console.log(' Seeding baseline system audit records...');
     await db.insert(auditLogs).values([
       {
         tenantId: SYSTEM_TENANT_ID,
@@ -60,9 +60,9 @@ async function main() {
       },
     ]).onConflictDoNothing();
 
-    console.log('✅ Database seeding operations completed successfully!');
+    console.log(' Database seeding operations completed successfully!');
   } catch (error) {
-    console.error('❌ Critical failure encountered during seeding operation:', error);
+    console.error(' Critical failure encountered during seeding operation:', error);
     process.exit(1);
   } finally {
     await pool.end(); // Cleanly close the pool connection stream

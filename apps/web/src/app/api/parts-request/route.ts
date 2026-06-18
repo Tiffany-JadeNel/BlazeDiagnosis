@@ -1,54 +1,73 @@
 import { NextResponse } from "next/server";
-import { createPartsRequest } from "@/features/parts/services/parts.service";
-import { requireTenantContext } from "@/lib/tenancy/tenant-context";
+import { partsRequestItems, partsRequests } from "@/db/schema/parts";
+import { db } from "@/db/client";
+import { eq } from "drizzle-orm";
 
-export async function GET(request: Request) {
-  try {
-    // Extract tenantId from query string
-    const { searchParams } = new URL(request.url);
-    const tenantId = searchParams.get("tenantId");
+// 🔍 FETCH PARTS REQUESTS BY JOBCARD ID
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const jobCardId = searchParams.get("jobCardId");
 
-    if (!tenantId) {
-      return NextResponse.json(
-        { error: "Missing required tenantId parameter" },
-        { status: 400 }
-      );
-    }
-
-    // TODO: Query the database for active/non‑archived parts requests
-    // Example placeholder response:
+  if (!jobCardId) {
     return NextResponse.json(
-      { message: "GET parts requests endpoint ready", tenantId },
-      { status: 200 }
+      { error: "Missing required 'jobCardId' parameter" }, 
+      { status: 400 }
     );
+  }
+
+  try {
+    const requests = await db
+      .select()
+      .from(partsRequests)
+      .where(eq(partsRequests.jobCardId, jobCardId));
+      
+    return NextResponse.json(requests);
   } catch (error) {
     console.error("Error fetching parts requests:", error);
     return NextResponse.json(
-      { error: (error as Error).message },
+      { error: "Error fetching parts requests" }, 
       { status: 500 }
     );
   }
 }
 
+// ➕ CREATE NEW PARTS REQUEST DRAFT WITH ITEMS
 export async function POST(req: Request) {
   try {
-    const tenant = await requireTenantContext();
     const body = await req.json();
-    const { jobCardId, notes } = body;
+    const { tenantId, jobCardId, staffId, items } = body;
 
-    if (!jobCardId) {
+    // Strict validation check for payload integrity
+    if (!tenantId || !jobCardId || !staffId || !items || !Array.isArray(items)) {
       return NextResponse.json(
-        { error: "Missing required jobCardId parameter" },
+        { error: "Missing required parameters or 'items' is not an array" }, 
         { status: 400 }
       );
     }
 
-    const request = await createPartsRequest(tenant.tenantId, jobCardId, notes);
-    return NextResponse.json(request, { status: 201 });
+    // 1️ Create the main request header
+    const [request] = await db.insert(partsRequests).values({
+      tenantId,
+      jobCardId,
+      requestedByUserId: staffId,
+      status: "draft",
+    }).returning();
+
+    // 2️ Map over and batch insert linked array items safely
+    const itemValues = items.map((item: any) => ({
+      requestId: request.id,
+      partId: item.partId,
+      quantity: item.quantity,
+      notes: item.notes || null, // Fallback if no specific notes provided
+    }));
+
+    await db.insert(partsRequestItems).values(itemValues);
+
+    return NextResponse.json(request);
   } catch (error) {
     console.error("Error creating parts request:", error);
     return NextResponse.json(
-      { error: (error as Error).message },
+      { error: "Error creating parts request" }, 
       { status: 500 }
     );
   }

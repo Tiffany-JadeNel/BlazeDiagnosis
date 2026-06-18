@@ -38,10 +38,10 @@ export function PartsRequestForm({
         throw new Error(data.error || "Failed to create parts request");
       }
 
-      console.log("✅ Parts request created:", data);
+      console.log("Parts request created:", data);
       alert("Parts request submitted successfully!");
     } catch (error) {
-      console.error("❌ Failed to create parts request:", error);
+      console.error(" Failed to create parts request:", error);
       alert("Error submitting request.");
     } finally {
       setLoading(false);
