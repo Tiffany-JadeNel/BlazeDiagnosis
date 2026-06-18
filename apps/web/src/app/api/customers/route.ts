@@ -2,9 +2,14 @@ import { createCustomerSchema } from '@/features/customers/schemas/customer.sche
 import { createCustomer } from '@/features/customers/services/customer.service';
 import { requireTenantContext } from '@/lib/tenancy/tenant-context';
 import { NextResponse } from 'next/server';
+import { db } from '@/db/client';
+import { customers } from '@/db/schema/customers';
+import { and, eq } from 'drizzle-orm';
+import { ZodError } from 'zod';
 
 export async function GET(request: Request) {
     try {
+        const tenant = await requireTenantContext();
         // Get the tenantId from the URL query string
         const {searchParams} = new URL(request.url);
         const tenantId = searchParams.get('tenantId');
@@ -16,14 +21,37 @@ export async function GET(request: Request) {
                 {status: 400}
             );
         }
-    }
-};
+          const activeCustomers = await db
+      .select()
+      .from(customers)
+      .where(
+        and(
+          eq(customers.tenantId, tenantId),
+          eq(customers.isArchived, false)
+        )
+      );
 
-// TODO: Query the database for active or non-archived
-// Add the catch statement to the try operator dont forget to return JSON
-// Add the POST method to create a new customer and return the created customer in the response
+    // Return the clean data list payload
+    return NextResponse.json(activeCustomers);
+
+// Implemented the catch sequence for the error handling.
+  } catch (error) {
+    console.error('API Error:', error);
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
+}
+
+// The POST function is responsible for handling the creation of a new customer. 
 
 export async function POST(req: Request) {
+
+  // The try block is used to handle the main logic of the POST request, which includes validating the tenant context, parsing the request body, 
+  // validating the input against the schema, and creating a new customer in the database.
+  // If any of these steps fail, the catch block will handle the error and return a JSON response with an appropriate error message and status code.
+
   try {
     const tenant = await requireTenantContext();
     const body = await req.json();
@@ -31,9 +59,13 @@ export async function POST(req: Request) {
     const customer = await createCustomer(tenant.tenantId, input);
 
     return NextResponse.json(customer, { status: 201 });
-  }
 
-catch (err) {
+    // The catch block is designed to handle different types of errors that may occur during the execution of the POST request.
+    // If the error is a ZodError, it indicates that the input validation failed, and a 422 Unprocessable Entity status code is returned along with the validation error details.
+    // If the error is a general Error instance, it returns a 409 Conflict status code with the error message.
+    // For any other types of errors, it returns a 500 Internal Server Error status code with a generic error message.
+
+  } catch (err) {
     if (err instanceof ZodError) {
       return NextResponse.json(
         { error: 'Validation failed', details: err.flatten().fieldErrors },
