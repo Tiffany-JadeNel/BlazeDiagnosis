@@ -33,7 +33,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ customers: data }, { status: 200 });
 
   } catch (error: any) {
-    console.error('❌ GET API Multi-Tenant Route Error:', error);
+    console.error(' GET API Multi-Tenant Route Error:', error);
     return NextResponse.json(
       { error: 'Internal Server Error', message: error.message },
       { status: 500 }
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
     return NextResponse.json(customer, { status: 201 });
 
   } catch (error: any) {
-    console.error('❌ POST API Multi-Tenant Route Error:', error);
+    console.error(' POST API Multi-Tenant Route Error:', error);
     
     // Handle Zod parsing schema failures gracefully
     if (error.name === 'ZodError') {
