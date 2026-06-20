@@ -1,36 +1,50 @@
-import React from "react";
-import { PartsRequestForm } from "../../components/forms/parts-request-form";
+import { AppShell } from '@/components/common/app-shell';
+import { StatusBadge } from '@/components/common/status-badge';
+import {
+  ResponsiveTable,
+  tableCellClassName,
+  tableHeadClassName,
+} from '@/components/data-display';
+import { PartsRequestForm } from '@/components/forms/parts-request-form';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function PartsRequestPage() {
   return (
-    <div className="space-y-6 p-6">
-      <h1 className="text-2xl font-bold">Parts Request</h1>
+    <AppShell
+      description="Standalone demo form for validating the supplier request flow before moving it into the station parts workspace."
+      surface="station"
+      title="Parts request demo"
+    >
+      <div className="grid gap-6 lg:grid-cols-[1fr_28rem]">
+        <PartsRequestForm jobCardId="00000000-0000-0000-0000-000000000101" />
 
-      {/* Demo form with props */}
-      <PartsRequestForm jobCardId="demo-job-001" tenantId="tenant-xyz" />
-
-      {/* Optional second form for testing */}
-      {/* <PartsRequestForm jobCardId="demo-job-002" tenantId="tenant-abc" /> */}
-
-      <div className="border p-4 rounded-md">
-        <h3 className="font-medium">Submitted Requests (Demo)</h3>
-        <table className="w-full mt-2 border-collapse">
-          <thead>
-            <tr className="border-b">
-              <th className="p-2 text-left">Part Name</th>
-              <th className="p-2 text-left">Quantity</th>
-              <th className="p-2 text-left">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="p-2">Brake Pads</td>
-              <td className="p-2">4</td>
-              <td className="p-2">Pending</td>
-            </tr>
-          </tbody>
-        </table>
+        <Card>
+          <CardHeader>
+            <CardTitle>Submitted requests</CardTitle>
+            <CardDescription>Static demo data for UX review.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveTable>
+              <thead>
+                <tr className={tableHeadClassName}>
+                  <th className={tableCellClassName}>Part</th>
+                  <th className={tableCellClassName}>Quantity</th>
+                  <th className={tableCellClassName}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className={tableCellClassName}>Brake pads</td>
+                  <td className={tableCellClassName}>4</td>
+                  <td className={tableCellClassName}>
+                    <StatusBadge tone="warning">Pending</StatusBadge>
+                  </td>
+                </tr>
+              </tbody>
+            </ResponsiveTable>
+          </CardContent>
+        </Card>
       </div>
-    </div>
+    </AppShell>
   );
 }

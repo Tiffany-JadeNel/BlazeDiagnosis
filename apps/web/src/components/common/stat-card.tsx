@@ -1,20 +1,28 @@
+import type { ReactNode } from 'react';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-type StatCardProps = {
+export type StatCardProps = {
+  description?: string;
+  icon?: ReactNode;
   label: string;
   value: string;
 };
 
-export function StatCard({ label, value }: StatCardProps) {
+export function StatCard({ description, icon, label, value }: StatCardProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-sm font-medium text-neutral-500">
+    <Card className="overflow-hidden">
+      <CardHeader className="flex-row items-start justify-between gap-4 space-y-0 pb-3">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
           {label}
         </CardTitle>
+        {icon ? <div className="text-muted-foreground">{icon}</div> : null}
       </CardHeader>
       <CardContent>
-        <p className="text-3xl font-bold">{value}</p>
+        <p className="text-3xl font-bold tracking-tight text-foreground">{value}</p>
+        {description ? (
+          <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+        ) : null}
       </CardContent>
     </Card>
   );

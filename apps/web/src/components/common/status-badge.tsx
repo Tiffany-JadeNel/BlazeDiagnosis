@@ -4,22 +4,28 @@ import { cn } from '@/lib/utils';
 
 type StatusBadgeProps = {
   children: ReactNode;
-  tone?: 'neutral' | 'success' | 'warning' | 'danger';
+  className?: string;
+  tone?: 'danger' | 'neutral' | 'success' | 'warning';
 };
 
-const tones = {
-  neutral: 'border-neutral-300 bg-neutral-100 text-neutral-800',
-  success: 'border-green-300 bg-green-50 text-green-800',
-  warning: 'border-yellow-300 bg-yellow-50 text-yellow-800',
-  danger: 'border-red-300 bg-red-50 text-red-800',
+const tones: Record<NonNullable<StatusBadgeProps['tone']>, string> = {
+  danger: 'border-destructive/25 bg-destructive/10 text-destructive',
+  neutral: 'border-border bg-muted text-muted-foreground',
+  success: 'border-success/25 bg-success/10 text-success',
+  warning: 'border-warning/25 bg-warning/10 text-warning',
 };
 
-export function StatusBadge({ children, tone = 'neutral' }: StatusBadgeProps) {
+export function StatusBadge({
+  children,
+  className,
+  tone = 'neutral',
+}: StatusBadgeProps) {
   return (
     <span
       className={cn(
-        'rounded-full border px-2 py-1 text-xs font-medium',
+        'inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold leading-none',
         tones[tone],
+        className,
       )}
     >
       {children}

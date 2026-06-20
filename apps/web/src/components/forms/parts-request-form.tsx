@@ -1,127 +1,153 @@
-import React, { useState } from "react";
+'use client';
 
-// 💡 MAP YOUR SKUs TO THE NUMERIC IDS FOUND IN YOUR DB
+import type { FormEvent } from 'react';
+import { useState } from 'react';
+
+import { FormActions, FormField } from '@/components/forms';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+
 const partMapping: Record<string, number> = {
-  "SM-001": 1,
-  "SM-002": 2,
-  "AL-001": 3,
-  "BP-001": 4,
+  'AL-001': 3,
+  'BP-001': 4,
+  'SM-001': 1,
+  'SM-002': 2,
 };
 
-export function PartsRequestForm({
-  jobCardId,
-  tenantId,
-}: {
+type PartsRequestFormProps = {
   jobCardId: string;
-  tenantId: string;
-}) {
-  const [partName, setPartName] = useState("");
-  const [partNumber, setPartNumber] = useState(""); // This is your SKU/String
-  const [quantity, setQuantity] = useState(1);
-  const [notes, setNotes] = useState("");
-  const [loading, setLoading] = useState(false);
+};
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+export function PartsRequestForm({ jobCardId }: PartsRequestFormProps) {
+  const [partName, setPartName] = useState('');
+  const [partNumber, setPartNumber] = useState('');
+  const [quantity, setQuantity] = useState(1);
+  const [notes, setNotes] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setLoading(true);
+    setStatusMessage(null);
 
     try {
-      // 1. Convert the SKU string to the numeric ID the database expects
-      const numericPartId = partMapping[partNumber] || parseInt(partNumber);
+      const numericPartId = partMapping[partNumber] ?? Number.parseInt(partNumber, 10);
 
-      if (!numericPartId || isNaN(numericPartId)) {
-        throw new Error("Invalid Part Number: Could not map to a database ID.");
+      if (!numericPartId || Number.isNaN(numericPartId)) {
+        throw new Error('Enter a valid part number or mapped SKU.');
       }
 
-      // 2. Prepare the payload structure
       const payload = {
-        tenantId,
-        jobCardId,
-        staffId: 1, // Ensure this user ID exists in your 'users' table
         items: [
           {
+            notes,
             partId: numericPartId,
-            quantity: quantity,
-            notes: notes,
+            quantity,
           },
         ],
+        jobCardId,
       };
 
-      const res = await fetch("/api/parts-request", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/parts-request', {
         body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to create parts request");
+      if (!response.ok) {
+        throw new Error(data.error ?? 'Failed to create parts request.');
       }
 
-      alert("Parts request submitted successfully!");
+      setStatusMessage('Parts request submitted. Supplier responses can now be tracked from the parts queue.');
+      setPartName('');
+      setPartNumber('');
+      setQuantity(1);
+      setNotes('');
     } catch (error) {
-      console.error("Failed to create parts request:", error);
-      alert("Error: " + (error instanceof Error ? error.message : "Submission failed"));
+      setStatusMessage(error instanceof Error ? error.message : 'Submission failed.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded-md">
-      <h2 className="text-lg font-semibold">Parts Request</h2>
+    <Card>
+      <CardHeader>
+        <CardTitle>Create parts request</CardTitle>
+        <CardDescription>
+          Capture the required part and send it into the supplier workflow.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form className="grid gap-4" onSubmit={handleSubmit}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField id="partName" label="Part name">
+              <Input
+                id="partName"
+                name="partName"
+                onChange={(event) => setPartName(event.target.value)}
+                required
+                value={partName}
+              />
+            </FormField>
 
-      <div>
-        <label className="block font-medium">Part Name</label>
-        <input
-          type="text"
-          value={partName}
-          onChange={(e) => setPartName(e.target.value)}
-          required
-          className="w-full border rounded px-2 py-1"
-        />
-      </div>
+            <FormField
+              description="Use a mapped demo SKU such as SM-001 or the numeric part ID."
+              id="partNumber"
+              label="Part number / SKU"
+            >
+              <Input
+                id="partNumber"
+                name="partNumber"
+                onChange={(event) => setPartNumber(event.target.value)}
+                placeholder="SM-001"
+                required
+                value={partNumber}
+              />
+            </FormField>
+          </div>
 
-      <div>
-        <label className="block font-medium">Part Number (SKU)</label>
-        <input
-          type="text"
-          value={partNumber}
-          onChange={(e) => setPartNumber(e.target.value)}
-          placeholder="e.g. SM-001"
-          required
-          className="w-full border rounded px-2 py-1"
-        />
-      </div>
+          <div className="grid gap-4 sm:grid-cols-[12rem_1fr]">
+            <FormField id="quantity" label="Quantity">
+              <Input
+                id="quantity"
+                min={1}
+                name="quantity"
+                onChange={(event) => setQuantity(Number(event.target.value))}
+                type="number"
+                value={quantity}
+              />
+            </FormField>
 
-      <div>
-        <label className="block font-medium">Quantity</label>
-        <input
-          type="number"
-          value={quantity}
-          onChange={(e) => setQuantity(Number(e.target.value))}
-          min={1}
-          className="w-full border rounded px-2 py-1"
-        />
-      </div>
+            <FormField id="notes" label="Supplier notes">
+              <textarea
+                className="min-h-10 w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                id="notes"
+                name="notes"
+                onChange={(event) => setNotes(event.target.value)}
+                placeholder="Brand preference, urgency, delivery instructions..."
+                value={notes}
+              />
+            </FormField>
+          </div>
 
-      <div>
-        <label className="block font-medium">Notes</label>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="w-full border rounded px-2 py-1"
-        />
-      </div>
+          {statusMessage ? (
+            <p aria-live="polite" className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
+              {statusMessage}
+            </p>
+          ) : null}
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="bg-blue-600 text-white px-4 py-2 rounded"
-      >
-        {loading ? "Submitting..." : "Submit Request"}
-      </button>
-    </form>
+          <FormActions>
+            <Button disabled={loading} type="submit" variant="accent">
+              {loading ? 'Submitting...' : 'Submit request'}
+            </Button>
+          </FormActions>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,146 +1,140 @@
-import { AppShell } from '@/components/common/app-shell';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { db } from '@/db'; 
-import { invoices } from '@/db/schema/invoices'; 
-import { and, eq } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
-import React from 'react';
+
+import { AppShell } from '@/components/common/app-shell';
+import { StatusBadge } from '@/components/common/status-badge';
+import {
+  ResponsiveTable,
+  tableCellClassName,
+  tableHeadClassName,
+} from '@/components/data-display';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const currencyFormatter = new Intl.NumberFormat('en-ZA', {
-  style: 'currency',
   currency: 'ZAR',
+  style: 'currency',
 });
 
-// SERVICE INTEGRATION POINT: Secure data fetch utility
-async function getInvoiceDetails(invoiceId: string, tenantId: string) {
-  const [invoice] = await db
-    .select()
-    .from(invoices)
-    .where(
-      and(
-        eq(invoices.id, invoiceId),
-        eq(invoices.tenantId, tenantId)
-      )
-    );
+type InvoiceLineItem = {
+  amountCents: number;
+  description: string;
+  id: string;
+  quantity: number;
+  type: 'LABOUR' | 'PART';
+  unitPriceCents: number;
+};
 
-  if (!invoice) return null;
+const demoInvoice = {
+  customerRef: 'CUS-001',
+  dueDate: '2026-06-24',
+  id: 'inv-2026-001',
+  invoiceNumber: 'INV-2026-001',
+  issuedAt: '2026-06-10',
+  jobCardId: 'JOB-2026-0042',
+  lineItems: [
+    {
+      amountCents: 85000,
+      description: 'Diagnostic labour and road test',
+      id: 'line-1',
+      quantity: 1,
+      type: 'LABOUR' as const,
+      unitPriceCents: 85000,
+    },
+    {
+      amountCents: 35000,
+      description: 'Replacement brake sensor',
+      id: 'line-2',
+      quantity: 1,
+      type: 'PART' as const,
+      unitPriceCents: 35000,
+    },
+  ] satisfies InvoiceLineItem[],
+  status: 'PENDING' as const,
+  subtotalCents: 120000,
+  totalCents: 138000,
+  vatCents: 18000,
+};
 
-  // Append a default fallback array so the UI template compiles cleanly
-  return {
-    ...invoice,
-    lineItems: [] as any[], 
-  };
-}
+type InvoiceDetailPageProps = {
+  params: Promise<{ id: string }>;
+};
 
-export default async function InvoiceDetailPage({ params }: { params: { id: string } }) {
-  const resolvedParams = await params;
-  
-  // SESSION MANAGER: Hardcoded configuration string placeholder for the QA demo block
-  const activeTenantId = '00000000-0000-0000-0000-000000000001'; 
+export default async function InvoiceDetailPage({ params }: InvoiceDetailPageProps) {
+  const { id } = await params;
 
-  if (!activeTenantId) {
-    notFound();
-  }
-
-  // Fetch data safely protecting against URL manipulation
-  const invoice = await getInvoiceDetails(resolvedParams.id, activeTenantId);
-
-  if (!invoice) {
+  if (id !== demoInvoice.id) {
     notFound();
   }
 
   return (
-    <AppShell surface="customer" title={`Invoice ${invoice.invoiceNumber || 'Detail'}`}>
-      <div className="space-y-6">
-        
-        {/* --- CONCEPTUAL METADATA LINKS LINKING PODS --- */}
-        <div className="flex flex-wrap gap-4 items-center justify-between p-4 bg-neutral-50 rounded-lg border border-neutral-200">
-          <div className="text-sm text-neutral-600">
-            <span className="font-medium text-neutral-900">Invoice Number:</span> {invoice.invoiceNumber || 'N/A'}
-            <span className="mx-2 text-neutral-300">|</span>
-            <span className="font-medium text-neutral-900">Linked Job Card:</span> {invoice.jobCardId || 'N/A'} 
-            <span className="mx-2 text-neutral-300">|</span>
-            <span className="font-medium text-neutral-900">Customer Ref:</span> {invoice.customerId || 'N/A'}
-          </div>
-          <span className="px-2.5 py-1 text-xs font-bold uppercase rounded border bg-amber-50 border-amber-200 text-amber-700">
-            {invoice.status || 'PENDING'}
-          </span>
-        </div>
-
-        {/* --- ITEMIZED TAX RECEIPT --- */}
+    <AppShell
+      description="Customer-readable invoice detail with line items, VAT, linked job card, and payment status."
+      surface="customer"
+      title={`Invoice ${demoInvoice.invoiceNumber}`}
+    >
+      <div className="grid gap-6">
         <Card>
-          <CardHeader className="border-b border-neutral-100 pb-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <CardTitle className="text-xl">Tax Invoice Statement</CardTitle>
-                <p className="text-xs text-neutral-500 mt-1">Blaze POS Diagnostic Workshop System</p>
-              </div>
-              <div className="text-right text-sm text-neutral-600">
-                {/* Updated issueDate to issuedAt, and formatted the Date object string */}
-                <p><span className="font-medium text-neutral-900">Issued:</span> {invoice.issuedAt ? new Date(invoice.issuedAt).toLocaleDateString() : 'N/A'}</p>
-                {/* Updated dueDate to dueAt (or invoice.dueDate if your schema uses that exact casing) */}
-                <p><span className="font-medium text-neutral-900">Due Date:</span> {invoice.dueAt ? new Date(invoice.dueAt).toLocaleDateString() : 'N/A'}</p>
+          <CardContent className="grid gap-4 pt-6 md:grid-cols-4">
+            <SummaryItem label="Linked job card" value={demoInvoice.jobCardId} />
+            <SummaryItem label="Customer reference" value={demoInvoice.customerRef} />
+            <SummaryItem label="Issued" value={demoInvoice.issuedAt} />
+            <div className="rounded-lg border border-border bg-muted/40 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Status
+              </p>
+              <div className="mt-2">
+                <StatusBadge tone="warning">{demoInvoice.status}</StatusBadge>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Tax invoice statement</CardTitle>
+            <CardDescription>Blaze Diagnostics workshop service receipt.</CardDescription>
           </CardHeader>
-          
-          <CardContent className="pt-6">
-            <table className="w-full text-left text-sm border-collapse">
+          <CardContent>
+            <ResponsiveTable>
               <thead>
-                <tr className="border-b border-neutral-200 text-neutral-500 font-medium text-xs uppercase tracking-wider">
-                  <th className="pb-3 w-16">Type</th>
-                  <th className="pb-3">Item & Description</th>
-                  <th className="pb-3 text-center w-16">Qty</th>
-                  <th className="pb-3 text-right w-32">Unit Price</th>
-                  <th className="pb-3 text-right w-32">Amount</th>
+                <tr className={tableHeadClassName}>
+                  <th className={tableCellClassName}>Type</th>
+                  <th className={tableCellClassName}>Item and description</th>
+                  <th className={`${tableCellClassName} text-center`}>Qty</th>
+                  <th className={`${tableCellClassName} text-right`}>Unit price</th>
+                  <th className={`${tableCellClassName} text-right`}>Amount</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-neutral-100 text-neutral-800">
-                {/* Fallback to empty array if line items aren't populated inside database schemas */}
-                {(invoice.lineItems)?.map((item: any) => (
-                  <tr key={item.id} className="align-middle">
-                    <td className="py-4 text-xs">
-                      <span className={`px-1.5 py-0.5 font-mono font-bold rounded text-[10px] ${
-                        item.type === 'LABOUR' 
-                          ? 'bg-blue-50 border border-blue-100 text-blue-700' 
-                          : 'bg-purple-50 border border-purple-100 text-purple-700'
-                      }`}>
+              <tbody className="divide-y divide-border">
+                {demoInvoice.lineItems.map((item) => (
+                  <tr key={item.id}>
+                    <td className={tableCellClassName}>
+                      <StatusBadge tone={item.type === 'LABOUR' ? 'neutral' : 'success'}>
                         {item.type}
-                      </span>
+                      </StatusBadge>
                     </td>
-                    <td className="py-4 font-medium text-neutral-900">{item.description}</td>
-                    <td className="py-4 text-center font-mono">{item.quantity}</td>
-                    <td className="py-4 text-right font-mono text-neutral-600">
-                      {currencyFormatter.format((item.unitPriceCents || 0) / 100)}
+                    <td className={`${tableCellClassName} font-medium`}>
+                      {item.description}
                     </td>
-                    <td className="py-4 text-right font-mono font-medium">
-                      {currencyFormatter.format(((item.unitPriceCents || 0) * (item.quantity || 1)) / 100)}
+                    <td className={`${tableCellClassName} text-center font-mono`}>
+                      {item.quantity}
+                    </td>
+                    <td className={`${tableCellClassName} text-right font-mono text-muted-foreground`}>
+                      {currencyFormatter.format(item.unitPriceCents / 100)}
+                    </td>
+                    <td className={`${tableCellClassName} text-right font-mono font-semibold`}>
+                      {currencyFormatter.format(item.amountCents / 100)}
                     </td>
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </ResponsiveTable>
 
-            {/* --- CALCULATED TOTALS --- */}
-            <div className="mt-6 border-t border-neutral-200 pt-4 flex justify-end">
-              <div className="w-64 space-y-2 text-sm text-neutral-600">
-                <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span className="font-mono text-neutral-900">
-                    {currencyFormatter.format(((invoice as any).subtotalCents || (invoice as any).subtotal || 0) / 100)}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>VAT (15%):</span>
-                  <span className="font-mono text-neutral-900">
-                    {currencyFormatter.format(((invoice as any).vatCents || (invoice as any).vat || 0) / 100)}
-                  </span>
-                </div>
-                <div className="flex justify-between border-t border-neutral-200 pt-2 text-base font-bold text-neutral-900">
-                  <span>Total Due:</span>
-                  <span className="font-mono text-neutral-950">
-                    {currencyFormatter.format(((invoice as any).totalCents || (invoice as any).total || 0) / 100)}
-                  </span>
+            <div className="mt-6 flex justify-end">
+              <div className="w-full max-w-sm rounded-xl border border-border bg-muted/40 p-4 text-sm">
+                <TotalRow label="Subtotal" value={currencyFormatter.format(demoInvoice.subtotalCents / 100)} />
+                <TotalRow label="VAT (15%)" value={currencyFormatter.format(demoInvoice.vatCents / 100)} />
+                <div className="mt-3 border-t border-border pt-3">
+                  <TotalRow emphasis label="Total due" value={currencyFormatter.format(demoInvoice.totalCents / 100)} />
                 </div>
               </div>
             </div>
@@ -148,5 +142,25 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
         </Card>
       </div>
     </AppShell>
+  );
+}
+
+function SummaryItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-border bg-muted/40 p-3">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
+      <p className="mt-1 text-sm font-medium text-foreground">{value}</p>
+    </div>
+  );
+}
+
+function TotalRow({ emphasis = false, label, value }: { emphasis?: boolean; label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-1">
+      <span className={emphasis ? 'font-semibold text-foreground' : 'text-muted-foreground'}>{label}</span>
+      <span className={emphasis ? 'font-mono text-lg font-bold text-foreground' : 'font-mono text-foreground'}>{value}</span>
+    </div>
   );
 }

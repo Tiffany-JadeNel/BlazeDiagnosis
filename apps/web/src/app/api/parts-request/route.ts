@@ -1,67 +1,109 @@
-import { NextResponse } from "next/server";
-import { partsRequestItems, partsRequests } from "@/db/schema/parts";
-import { db } from "@/db/client";
-import { eq } from "drizzle-orm";
+import { and, eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
+import { z, ZodError } from 'zod';
 
-// 🔍 FETCH PARTS REQUESTS BY JOBCARD ID
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const jobCardId = searchParams.get("jobCardId");
+import { db } from '@/db/client';
+import { partsRequestItems, partsRequests } from '@/db/schema/suppliers';
+import { requireTenantContext } from '@/lib/tenancy/tenant-context';
 
-  if (!jobCardId) {
-    return NextResponse.json({ error: "Missing required 'jobCardId'" }, { status: 400 });
-  }
+const createPartsRequestSchema = z.object({
+  items: z
+    .array(
+      z.object({
+        notes: z.string().optional(),
+        partId: z.union([z.string(), z.number()]),
+        quantity: z.number().int().positive().default(1),
+      }),
+    )
+    .min(1),
+  jobCardId: z.string().uuid(),
+  notes: z.string().optional(),
+  staffId: z.string().uuid().optional(),
+});
 
-  try {
-    const requests = await db
-      .select()
-      .from(partsRequests)
-      .where(eq(partsRequests.jobCardId, jobCardId));
-
-    return NextResponse.json(requests);
-  } catch (error) {
-    console.error("Error fetching parts requests:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : 'Internal Server Error';
 }
 
-// ➕ CREATE NEW PARTS REQUEST DRAFT WITH ITEMS
-export async function POST(req: Request) {
+export async function GET(request: Request) {
   try {
-    const body = await req.json();
-    const { tenantId, jobCardId, staffId, items } = body;
+    const tenant = await requireTenantContext();
+    const { searchParams } = new URL(request.url);
+    const jobCardId = searchParams.get('jobCardId');
 
-    if (!tenantId || !jobCardId || !staffId || !Array.isArray(items) || items.length === 0) {
+    if (!jobCardId) {
       return NextResponse.json(
-        { error: "Invalid request payload. Ensure 'items' is a non-empty array." },
-        { status: 400 }
+        { error: "Missing required 'jobCardId'" },
+        { status: 400 },
       );
     }
 
-    // 1️⃣ Create parent request
-    const [request] = await db.insert(partsRequests).values({
-      tenantId,
-      jobCardId,
-      requestedByUserId: staffId,
-      status: "draft",
-    }).returning();
+    const requests = await db
+      .select()
+      .from(partsRequests)
+      .where(
+        and(
+          eq(partsRequests.tenantId, tenant.tenantId),
+          eq(partsRequests.jobCardId, jobCardId),
+        ),
+      );
 
-    // 2️⃣ Insert child items
-    const itemValues: (typeof partsRequestItems.$inferInsert)[] = items.map((item: any) => ({
-      requestId: request.id,
-      partId: String(item.partId || item.partNumber || ""), // ✅ cast to text
-      quantity: Number(item.quantity) || 1,
-      notes: item.notes || null,
-    }));
+    return NextResponse.json({ requests });
+  } catch (error) {
+    console.error('GET /api/parts-request failed:', error);
+    return NextResponse.json(
+      { error: 'Internal Server Error', message: getErrorMessage(error) },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const tenant = await requireTenantContext();
+    const input = createPartsRequestSchema.parse(await request.json());
+
+    const [partsRequest] = await db
+      .insert(partsRequests)
+      .values({
+        jobCardId: input.jobCardId,
+        notes: input.notes,
+        requestedByUserId: input.staffId,
+        status: 'draft',
+        tenantId: tenant.tenantId,
+      })
+      .returning();
+
+    const itemValues: (typeof partsRequestItems.$inferInsert)[] = input.items.map(
+      (item) => ({
+        notes: item.notes,
+        partName: String(item.partId),
+        partNumber: String(item.partId),
+        partsRequestId: partsRequest.id,
+        quantity: String(item.quantity),
+        tenantId: tenant.tenantId,
+      }),
+    );
 
     await db.insert(partsRequestItems).values(itemValues);
 
-    return NextResponse.json({ success: true, requestId: request.id }, { status: 201 });
-  } catch (error: any) {
-    console.error("❌ Critical API Error:", error.message);
     return NextResponse.json(
-      { error: error.message || "Failed to process parts request" },
-      { status: 500 }
+      { requestId: partsRequest.id, success: true },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error('POST /api/parts-request failed:', error);
+
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', issues: error.issues },
+        { status: 400 },
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Internal Server Error', message: getErrorMessage(error) },
+      { status: 500 },
     );
   }
 }

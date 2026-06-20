@@ -16,67 +16,68 @@ export async function createVehicle(
 ) {
   await requireTenantPermission(tenantId, 'vehicles.write');
 
-  const VIN_Checking = input.vin
-  ? and(eq(vehicles.tenantId, tenantId), eq(vehicles.vin, input.vin))
-  : eq(vehicles.tenantId, tenantId);
+  if (input.vin) {
+    const [existingVin] = await db
+      .select()
+      .from(vehicles)
+      .where(and(eq(vehicles.tenantId, tenantId), eq(vehicles.vin, input.vin)))
+      .limit(1);
 
-  const [existingVIN] = await db
-    .select()
-    .from(vehicles)
-    .where(VIN_Checking)
-    .limit(1);
-
-    if (existingVIN) {
+    if (existingVin) {
       throw new Error('A vehicle with the same VIN already exists in this tenant.');
     }
+  }
 
-const whereCondition = input.registrationNumber
-  ? and(eq(vehicles.tenantId, tenantId), eq(vehicles.registrationNumber, input.registrationNumber))
-  : eq(vehicles.tenantId, tenantId);
+  if (input.registrationNumber) {
+    const [existingRegistration] = await db
+      .select()
+      .from(vehicles)
+      .where(
+        and(
+          eq(vehicles.tenantId, tenantId),
+          eq(vehicles.registrationNumber, input.registrationNumber),
+        ),
+      )
+      .limit(1);
 
-const [registrationNumber] = await db
-    .select()
-    .from(vehicles)
-    .where(whereCondition)
-    .limit(1);
-
-  if (registrationNumber) {
-    throw new Error('A vehicle with the same registration number already exists in this tenant.');
+    if (existingRegistration) {
+      throw new Error('A vehicle with the same registration number already exists in this tenant.');
+    }
   }
 
   return db.transaction(async (tx) => {
     const [vehicle] = await tx
       .insert(vehicles)
       .values({
-        tenantId,
-        primaryCustomerId: input.primaryCustomerId,
-        vin: input.vin,
-        registrationNumber: input.registrationNumber,
-        make: input.make,
-        model: input.model,
-        year: input.year,
-        mileage: input.mileage,
+        color: input.color,
         engineDetails: input.engineDetails,
         fuelType: input.fuelType,
-        transmission: input.transmission,
-        color: input.color,
+        make: input.make,
+        mileage: input.mileage,
+        model: input.model,
         notes: input.notes,
+        primaryCustomerId: input.primaryCustomerId,
+        registrationNumber: input.registrationNumber,
+        tenantId,
+        transmission: input.transmission,
+        vin: input.vin,
+        year: input.year,
       })
       .returning();
 
     await tx.insert(vehicleCustomers).values({
-      tenantId,
-      vehicleId: vehicle.id,
       customerId: input.primaryCustomerId,
       relationshipType: 'owner',
+      tenantId,
+      vehicleId: vehicle.id,
     });
 
     if (input.mileage) {
       await tx.insert(vehicleOdometerReadings).values({
-        tenantId,
-        vehicleId: vehicle.id,
         reading: input.mileage,
         source: 'vehicle_creation',
+        tenantId,
+        vehicleId: vehicle.id,
       });
     }
 
@@ -101,20 +102,10 @@ export async function listVehiclesForCustomer(
     );
 }
 
-// DELETE Function
-export async function deleteVehicle(
-  tenantId: string,
-  vehicleId: string,
-) {
+export async function deleteVehicle(tenantId: string, vehicleId: string) {
   await requireTenantPermission(tenantId, 'vehicles.write');
 
   await db
     .delete(vehicles)
-    .where(
-      and(
-        eq(vehicles.id, vehicleId),
-        eq(vehicles.tenantId, tenantId),
-      ),
-    );
+    .where(and(eq(vehicles.id, vehicleId), eq(vehicles.tenantId, tenantId)));
 }
-

@@ -1,76 +1,155 @@
-"use client";
-import { useState } from 'react';
+'use client';
 
-export const VehicleList: React.FC = () => {
-    const [vehicles, setVehicles] = useState<Vehicle[]>([
-        { id: '1', registration: 'ABC123', vin: '1HGBH41JXMN109186', make: 'Toyota', model: 'Camry', variant: 'LE', fuel: 'Gasoline', transmission: 'Automatic', year: '2020', status: 'Pending' },
-        { id: '2', registration: 'DEF456', vin: '2T1BURHE9JC234567', make: 'Honda', model: 'Civic', variant: 'EX', fuel: 'Gasoline', transmission: 'Manual', year: '2019', status: 'Completed' },
-        { id: '3', registration: 'GHI789', vin: '3N1AB6AP5BL789012', make: 'Ford', model: 'F-150', variant: 'XLT', fuel: 'Diesel', transmission: 'Automatic', year: '2021', status: 'Pending' },
-        { id: '4', registration: 'JKL012', vin: '4T1BURHE9JC234567', make: 'Chevrolet', model: 'Silverado', variant: 'LT', fuel: 'Diesel', transmission: 'Automatic', year: '2020', status: 'Completed' },
-    ]);
+import { useMemo, useState } from 'react';
 
-    const [searchQuery, setSearchQuery] = useState('');
+import { StatusBadge } from '@/components/common/status-badge';
+import {
+  EmptyState,
+  ResponsiveTable,
+  tableCellClassName,
+  tableHeadClassName,
+} from '@/components/data-display';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
-    const filteredVehicles = vehicles.filter((vehicle) => {
-        const query = searchQuery.toLowerCase().trim();
+import type { VehicleRecord } from './types';
 
-        if (!query) return true;
+const demoVehicles: VehicleRecord[] = [
+  {
+    fuel: 'Petrol',
+    id: '1',
+    make: 'Toyota',
+    model: 'Camry',
+    registration: 'ABC 123 GP',
+    status: 'Pending',
+    transmission: 'Automatic',
+    variant: 'LE',
+    vin: '1HGBH41JXMN109186',
+    year: '2020',
+  },
+  {
+    fuel: 'Petrol',
+    id: '2',
+    make: 'Honda',
+    model: 'Civic',
+    registration: 'DEF 456 GP',
+    status: 'Completed',
+    transmission: 'Manual',
+    variant: 'EX',
+    vin: '2T1BURHE9JC234567',
+    year: '2019',
+  },
+  {
+    fuel: 'Diesel',
+    id: '3',
+    make: 'Ford',
+    model: 'Ranger',
+    registration: 'GHI 789 GP',
+    status: 'In service',
+    transmission: 'Automatic',
+    variant: 'XLT',
+    vin: '3N1AB6AP5BL789012',
+    year: '2021',
+  },
+];
 
-        return (
-            vehicle.registration.toLowerCase().includes(query) ||
-            vehicle.vin.toLowerCase().includes(query) ||
-            vehicle.make.toLowerCase().includes(query) ||
-            vehicle.model.toLowerCase().includes(query) ||
-            vehicle.variant.toLowerCase().includes(query) ||
-            vehicle.fuel.toLowerCase().includes(query) ||
-            vehicle.transmission.toLowerCase().includes(query)
-        );
-    });
-
-    return (
-        <div className="p-20px font-sans">
-            <h2>Vehicle Dictionary</h2>
-
-             <div className="mb-4">
-                <input
-                    type="text"
-                    placeholder="Search by registration, VIN, make, model, variant, fuel, transmission..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
-                />
-            </div>
-
-            <table className="w-full border-collapse text-left">
-                <thead>
-                    <tr className="border-b-2 border-gray-300">
-                        <th className="p-2">Make</th>
-                        <th className="p-2">Model</th>
-                        <th className="p-2">Year</th>
-                        <th className="p-2">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredVehicles.length > 0 ? (
-                        filteredVehicles.map((vehicle) => (
-                            <tr key={vehicle.id} className="border-b border-gray-300">
-                                <td className="p-2 font-bold">{vehicle.make}</td>
-                                <td className="p-2">{vehicle.model}</td>
-                                <td className="p-2">{vehicle.year}</td>
-                            <td className={`p-2 font-bold ${vehicle.status === 'Pending' ? 'text-orange-500' : 'text-green-500'}`}>
-                                {vehicle.status}
-                            </td>
-                        </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan={5} className="p-2 text-center text-gray-500 italic">
-                                No vehicles found.
-                            </td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-        </div>
-    );
+const statusTone: Record<VehicleRecord['status'], 'neutral' | 'success' | 'warning'> = {
+  Completed: 'success',
+  'In service': 'neutral',
+  Pending: 'warning',
 };
+
+export function VehicleList() {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredVehicles = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+
+    if (!query) {
+      return demoVehicles;
+    }
+
+    return demoVehicles.filter((vehicle) =>
+      [
+        vehicle.registration,
+        vehicle.vin,
+        vehicle.make,
+        vehicle.model,
+        vehicle.variant,
+        vehicle.fuel,
+        vehicle.transmission,
+        vehicle.year,
+        vehicle.status,
+      ].some((value) => value.toLowerCase().includes(query)),
+    );
+  }, [searchQuery]);
+
+  return (
+    <Card>
+      <CardHeader className="gap-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <CardTitle>Vehicle directory</CardTitle>
+          <CardDescription>
+            Search active vehicles by registration, VIN, make, model, fuel type, or status.
+          </CardDescription>
+        </div>
+        <div className="w-full md:max-w-sm">
+          <Input
+            aria-label="Search vehicles"
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Search registration, VIN, make..."
+            value={searchQuery}
+          />
+        </div>
+      </CardHeader>
+      <CardContent>
+        {filteredVehicles.length === 0 ? (
+          <EmptyState
+            description="No vehicles match the current search. Clear the filter or capture a new vehicle."
+            title="No vehicles found"
+          />
+        ) : (
+          <ResponsiveTable>
+            <thead>
+              <tr className={tableHeadClassName}>
+                <th className={tableCellClassName}>Vehicle</th>
+                <th className={tableCellClassName}>Registration</th>
+                <th className={tableCellClassName}>VIN</th>
+                <th className={tableCellClassName}>Fuel</th>
+                <th className={tableCellClassName}>Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {filteredVehicles.map((vehicle) => (
+                <tr className="transition hover:bg-muted/40" key={vehicle.id}>
+                  <td className={tableCellClassName}>
+                    <div className="font-semibold text-foreground">
+                      {vehicle.make} {vehicle.model}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {vehicle.variant} • {vehicle.year} • {vehicle.transmission}
+                    </div>
+                  </td>
+                  <td className={`${tableCellClassName} font-mono text-sm`}>
+                    {vehicle.registration}
+                  </td>
+                  <td className={`${tableCellClassName} font-mono text-xs text-muted-foreground`}>
+                    {vehicle.vin}
+                  </td>
+                  <td className={`${tableCellClassName} text-muted-foreground`}>
+                    {vehicle.fuel}
+                  </td>
+                  <td className={tableCellClassName}>
+                    <StatusBadge tone={statusTone[vehicle.status]}>
+                      {vehicle.status}
+                    </StatusBadge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </ResponsiveTable>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

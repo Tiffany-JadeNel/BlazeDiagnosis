@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import type { ReactNode } from 'react';
@@ -6,8 +6,18 @@ import type { ReactNode } from 'react';
 import '../globals.css';
 
 export const metadata: Metadata = {
-  title: 'Blaze POS',
-  description: 'White-label SaaS platform for vehicle service stations.',
+  title: {
+    default: 'Blaze Diagnostics',
+    template: '%s | Blaze Diagnostics',
+  },
+  description:
+    'White-label diagnostics and service workflow SaaS for modern vehicle service stations.',
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0f172a',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 type LocaleLayoutProps = {

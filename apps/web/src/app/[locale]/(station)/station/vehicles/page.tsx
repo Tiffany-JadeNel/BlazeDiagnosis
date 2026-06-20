@@ -1,21 +1,29 @@
-import { AppShell } from '@/components/common/app-shell';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { VehicleList } from '@/components/vehicles/vehicle-list';
+import { PlusCircle } from 'lucide-react';
 
-export default function Page() {
+import { AppShell } from '@/components/common/app-shell';
+import { VehicleForm, VehicleList } from '@/components/vehicles';
+import { PageSection } from '@/components/layout/page-section';
+import { Button } from '@/components/ui/button';
+
+export default function StationVehiclesPage() {
   return (
-    <AppShell surface="station" title="Vehicles">
-      <Card>
-        <CardHeader>
-          <CardTitle>Vehicles</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-neutral-600">
-            Tenant vehicle records and service history.
-          </p>
-        </CardContent>
-      </Card>
-      <VehicleList/>
+    <AppShell
+      actions={
+        <Button disabled variant="accent">
+          <PlusCircle className="size-4" />
+          Add vehicle
+        </Button>
+      }
+      description="Manage tenant vehicle records, registration data, VINs, and service-history entry points."
+      surface="station"
+      title="Vehicles"
+    >
+      <PageSection title="Vehicle intake">
+        <VehicleForm />
+      </PageSection>
+      <PageSection title="Vehicle directory">
+        <VehicleList />
+      </PageSection>
     </AppShell>
   );
 }

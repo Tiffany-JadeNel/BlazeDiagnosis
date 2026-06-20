@@ -1,7 +1,8 @@
 'use client';
-import { PartsRequestForm } from '@/components/forms/parts-request-form';
 
 import { useState } from 'react';
+
+import { PartsRequestForm } from '@/components/forms/parts-request-form';
 
 import { DashboardPanel } from './dashboard-panel';
 import { InvoicesPanel } from './invoices-panel';
@@ -10,11 +11,8 @@ import { MarketplacePanel } from './marketplace-panel';
 import { PartsPanel } from './parts-panel';
 import { PaymentsPanel } from './payments-panel';
 import { QuotesPanel } from './quotes-panel';
-import { VehiclesPanel } from './vehicles-panel';
-
 import { SupplierDashboard } from './supplier-dashboard';
-
-
+import { VehiclesPanel } from './vehicles-panel';
 
 export function MvpShowcase() {
   const [selectedPartId, setSelectedPartId] = useState(1);
@@ -31,10 +29,8 @@ export function MvpShowcase() {
         onSelectPart={setSelectedPartId}
         selectedPartId={selectedPartId}
       />
-
       <PartsPanel />
-      <PartsRequestForm jobCardId="demo-job-id" tenantId="00000000-0000-0000-0000-000000000001" />  
-      <InvoicesPanel />
+      <PartsRequestForm jobCardId="00000000-0000-0000-0000-000000000101" />
       <PaymentsPanel />
     </div>
   );
