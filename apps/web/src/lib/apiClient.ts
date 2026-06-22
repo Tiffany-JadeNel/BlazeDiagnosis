@@ -41,3 +41,12 @@ export async function fetchCustomerIntakeHistory(customerid:string)
     errorMessage: 'Failed to fetch customer intake history'
   })
 }
+
+export async function createCustomerVehicleIntake(intakeData: unknown) {
+  return requestJson<{ intake: unknown }>(/api/customer-intakes, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(intakeData),
+    errorMessage: 'Failed to create new customer vehicle intake.',
+  });
+}
