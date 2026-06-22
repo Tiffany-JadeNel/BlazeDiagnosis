@@ -28,6 +28,12 @@ export async function fetchCustomers(query?: string) {
   });
 }
 
+export async function fetchCustomerById(customerId: string) {
+  return requestJson<Customer>(/api/customers/${customerId}, {
+    errorMessage: 'Failed to fetch customer profile detail records.',
+  });
+}
+
 export async function fetchVehiclesForCustomer(customerId: string) {
   return requestJson<{ vehicles: unknown[] }>(`/api/vehicles/${customerId}`, {
     errorMessage: 'Failed to fetch customer vehicles.',
