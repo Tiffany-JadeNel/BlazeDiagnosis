@@ -1,34 +1,40 @@
+// Import hooks from Next.js navigation and React
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+// Define the structure of a Customer object
 interface Customer {
-  id: number;
-  name: string;
-  surname: string;
-  email?: string;
-  cellphone?: string;
-  dateOfBirth?: string;
-  address?: string;
+  id: number;             // Unique identifier for the customer
+  name: string;           // First name
+  surname: string;        // Last name
+  email?: string;         // Optional email address
+  cellphone?: string;     // Optional cellphone number
+  dateOfBirth?: string;   // Optional date of birth
+  address?: string;       // Optional physical address
 
-  archived?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  archivedAt?: string;
+  archived?: boolean;     // Flag to indicate if customer is archived
+  createdAt?: string;     // Timestamp when customer record was created
+  updatedAt?: string;     // Timestamp when customer record was last updated
+  archivedAt?: string;    // Timestamp when customer was archived
 }
 
+// Define the structure of a Vehicle object
 interface Vehicle {
-  id: number;
-  make: string;
-  model: string;
-  year?: number;
-  plate?: string;
+  id: number;             // Unique identifier for the vehicle
+  make: string;           // Manufacturer (e.g., Toyota, Ford)
+  model: string;          // Model name (e.g., Corolla, Mustang)
+  year?: number;          // Optional manufacturing year
+  plate?: string;         // Optional license plate number
 }
 
+// Define the structure of a Job object
 interface Job {
-  id: number;
-  title: string;
-  status: string; // Defines the status job object
+  id: number;     // Unique identifier for the job
+  title: string;  // Job title or role name
+  status: string; // Current status of the job (e.g., "active", "completed", "pending")
+
 }
+
 //Defines the Quote objects in a interface
 interface Quote {
   id: number;
