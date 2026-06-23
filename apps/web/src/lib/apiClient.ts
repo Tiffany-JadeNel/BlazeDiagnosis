@@ -66,8 +66,8 @@ export async function createVehicle(vehicleData: unknown) {
   });
 }
 
-export async function createCustomer(customerId: string, customerData: unknown) {
-  return requestJson<Customer>(`/api/customers/${customerId}`, {
+export async function createCustomer(customerData: unknown) {
+  return requestJson<Customer>(`/api/customers`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(customerData),
