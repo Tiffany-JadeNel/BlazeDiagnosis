@@ -1,73 +1,67 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import 'dotenv/config';
 
-// Import the tables directly from the schema paths
-import { tenants } from './schema/tenants';
-import { customers } from './schema/customers';
-import { auditLogs } from './schema/audit';
+import { eq } from 'drizzle-orm';
 
-const databaseUrl = process.env.DATABASE_URL;
-
-if (!databaseUrl) {
-  throw new Error('DATABASE_URL environment variable is missing at runtime.');
-}
-
-// Set up a direct, independent pool connection
-const pool = new Pool({
-  connectionString: databaseUrl,
-});
-const db = drizzle(pool);
+import { db } from './seedClient';
+import { partsRequestItems, partsRequests } from './schema/suppliers';
+import { users } from './schema/users';
 
 const SYSTEM_TENANT_ID = '00000000-0000-0000-0000-000000000001';
+const MOCK_JOB_CARD_ID = '11111111-1111-1111-1111-111111111111';
+const MOCK_USER_ID = '22222222-2222-2222-2222-222222222222';
 
 async function main() {
-  console.log('⏳ Starting isolated database seeding process...');
+  console.log('Seeding user...');
+  await db
+    .insert(users)
+    .values({
+      email: 'mechanic@blazediagnosis.local',
+      id: MOCK_USER_ID,
+      name: 'Dev Mechanic Account',
+      role: 'mechanic',
+      tenantId: SYSTEM_TENANT_ID,
+    })
+    .onConflictDoNothing();
 
-  try {
-    // 1. Create a foundational Global Testing Tenant
-    console.log('🏢 Seeding default developer tenant...');
-    await db.insert(tenants).values({
-      id: SYSTEM_TENANT_ID,
-      name: 'Blaze POS Dev Workshop',
-      slug: 'blaze-pos-dev-workshop', 
-    }).onConflictDoNothing(); 
+  console.log('Seeding parts request...');
+  let [request] = await db
+    .insert(partsRequests)
+    .values({
+      id: '99999999-9999-9999-9999-999999999999',
+      jobCardId: MOCK_JOB_CARD_ID,
+      requestedByUserId: MOCK_USER_ID,
+      status: 'draft',
+      tenantId: SYSTEM_TENANT_ID,
+    })
+    .onConflictDoNothing()
+    .returning();
 
-    // 2. Create sample Customer Profiles
-    console.log('👥 Seeding mock customer profiles...');
-    await db.insert(customers).values([
-      {
-        tenantId: SYSTEM_TENANT_ID,
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-      },
-      {
-        tenantId: SYSTEM_TENANT_ID,
-        firstName: 'Sarah',
-        lastName: 'Lee',
-        email: 'sarah.lee@example.com',
-      },
-    ]).onConflictDoNothing();
-
-    // 3. Create initial structural Audit Trails
-    console.log('📜 Seeding baseline system audit records...');
-    await db.insert(auditLogs).values([
-      {
-        tenantId: SYSTEM_TENANT_ID,
-        action: 'SYSTEM_INITIALIZATION',
-        entityType: 'SYSTEM',            
-        entityId: SYSTEM_TENANT_ID,      
-      },
-    ]).onConflictDoNothing();
-
-    console.log('✅ Database seeding operations completed successfully!');
-  } catch (error) {
-    console.error('❌ Critical failure encountered during seeding operation:', error);
-    process.exit(1);
-  } finally {
-    await pool.end(); // Cleanly close the pool connection stream
-    process.exit(0);
+  if (!request) {
+    [request] = await db
+      .select()
+      .from(partsRequests)
+      .where(eq(partsRequests.jobCardId, MOCK_JOB_CARD_ID))
+      .limit(1);
   }
+
+  if (request) {
+    await db
+      .insert(partsRequestItems)
+      .values({
+        notes: 'Seeded test part',
+        partName: 'Starter motor',
+        partNumber: 'SM-001',
+        partsRequestId: request.id,
+        quantity: '2',
+        tenantId: SYSTEM_TENANT_ID,
+      })
+      .onConflictDoNothing();
+  }
+
+  console.log('Seeding complete.');
 }
 
-main();
+main().catch((error) => {
+  console.error('Seed failed:', error);
+  process.exit(1);
+});

@@ -1,96 +1,103 @@
-import { AppShell } from '@/components/common/app-shell';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { db } from '@/db/client';
-import { auditLogs } from '@/db/schema/audit';
-import { desc } from 'drizzle-orm';
-// 1. Import your new logger utility function
-import { createAuditLog } from '@/lib/audit';
+import { AppShell } from '@/components/common/appShell';
+import { StatusBadge } from '@/components/common/statusBadge';
+import {
+  ResponsiveTable,
+  tableCellClassName,
+  tableHeadClassName,
+} from '@/components/data-display';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import type { AuditLog } from '@/types/audit';
 
-export const revalidate = 0;
+const demoLogs: AuditLog[] = [
+  {
+    action: 'quote.approved',
+    actorUserId: 'user-demo-001',
+    createdAt: '2026-06-18T09:30:00.000Z',
+    entityId: 'quote-demo-001',
+    entityType: 'quote',
+    id: 'audit-001',
+    newValue: { approvedItems: 3, total: '1380.00' },
+  },
+  {
+    action: 'parts.requested',
+    actorUserId: 'user-demo-002',
+    createdAt: '2026-06-18T11:15:00.000Z',
+    entityId: 'parts-demo-001',
+    entityType: 'parts_request',
+    id: 'audit-002',
+    newValue: { etaRequired: true, status: 'sent' },
+  },
+];
 
-export default async function Page() {
-
-  // 2. Fetch logs immediately after, which will now include the log we just generated
-  const logs = await db
-    .select()
-    .from(auditLogs)
-    .orderBy(desc(auditLogs.createdAt));
-
+export default function AuditLogsPage() {
   return (
-    <AppShell surface="platform" title="Audit logs">
+    <AppShell
+      description="Track important tenant, workflow, quote, invoice, supplier, and platform events."
+      surface="platform"
+      title="Audit logs"
+    >
       <Card>
         <CardHeader>
-          <CardTitle>Audit logs</CardTitle>
+          <CardTitle>Audit event search</CardTitle>
+          <CardDescription>
+            Static MVP data is used here to keep the interface build-safe until the audit query endpoint is wired to authenticated tenant context.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-neutral-600 mb-6">
-            Real-time tracking of multi-user mutations, tenant data changes, and active system operations.
-          </p>
+          <form className="mb-6 grid gap-4 rounded-xl border border-border bg-muted/40 p-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+            <div className="grid gap-2">
+              <Label htmlFor="action">Filter by action</Label>
+              <Input disabled id="action" placeholder="quote.approved" />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="entityType">Filter by entity</Label>
+              <Input disabled id="entityType" placeholder="quote, invoice, job_card..." />
+            </div>
+            <Button disabled type="submit" variant="outline">
+              Apply filters
+            </Button>
+          </form>
 
-          <div className="overflow-x-auto rounded-lg border border-neutral-200 shadow-sm">
-            <table className="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr className="bg-neutral-50 border-b border-neutral-200 text-neutral-700 font-medium uppercase tracking-wider text-xs">
-                  <th className="p-4">Timestamp</th>
-                  <th className="p-4">Action</th>
-                  <th className="p-4">Target Entity</th>
-                  <th className="p-4">Actor (User ID)</th>
-                  <th className="p-4">Context Changes</th>
+          <ResponsiveTable>
+            <thead>
+              <tr className={tableHeadClassName}>
+                <th className={tableCellClassName}>Timestamp</th>
+                <th className={tableCellClassName}>Action</th>
+                <th className={tableCellClassName}>Target</th>
+                <th className={tableCellClassName}>Actor</th>
+                <th className={tableCellClassName}>Context changes</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {demoLogs.map((log) => (
+                <tr className="transition hover:bg-muted/40" key={log.id}>
+                  <td className={`${tableCellClassName} whitespace-nowrap text-xs text-muted-foreground`}>
+                    {new Date(log.createdAt).toLocaleString()}
+                  </td>
+                  <td className={tableCellClassName}>
+                    <StatusBadge tone="success">{log.action}</StatusBadge>
+                  </td>
+                  <td className={tableCellClassName}>
+                    <div className="text-sm font-semibold text-foreground">{log.entityType}</div>
+                    <div className="mt-0.5 font-mono text-xs text-muted-foreground">
+                      {log.entityId ?? 'N/A'}
+                    </div>
+                  </td>
+                  <td className={`${tableCellClassName} font-mono text-xs text-muted-foreground`}>
+                    {log.actorUserId ?? 'System'}
+                  </td>
+                  <td className={tableCellClassName}>
+                    <pre className="max-h-28 max-w-sm overflow-auto rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
+                      {JSON.stringify(log.newValue, null, 2)}
+                    </pre>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-neutral-200 text-neutral-800">
-                {logs.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="p-8 text-center text-neutral-500 italic">
-                      No system records captured yet.
-                    </td>
-                  </tr>
-                ) : (
-                  logs.map((log) => (
-                    <tr key={log.id} className="hover:bg-neutral-50/70 transition-colors">
-                      {/* Timestamp tracking */}
-                      <td className="p-4 text-xs whitespace-nowrap text-neutral-500">
-                        {new Date(log.createdAt).toLocaleString()}
-                      </td>
-
-                      {/* Explicit system action */}
-                      <td className="p-4">
-                        <span className="inline-block font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
-                          {log.action}
-                        </span>
-                      </td>
-
-                      {/* Targeted operational component */}
-                      <td className="p-4">
-                        <div className="text-xs font-semibold text-neutral-900">{log.entityType}</div>
-                        <div className="text-[10px] font-mono text-neutral-400 mt-0.5">{log.entityId || 'N/A'}</div>
-                      </td>
-
-                      {/* Actor Context */}
-                      <td className="p-4 font-mono text-xs text-neutral-600">
-                        {log.actorUserId ? (
-                          <span className="text-blue-600">{log.actorUserId}</span>
-                        ) : (
-                          <span className="text-neutral-400 italic">System Engine</span>
-                        )}
-                      </td>
-
-                      {/* JSON data structure preview */}
-                      <td className="p-4 max-w-xs">
-                        {log.newValue ? (
-                          <pre className="text-[10px] font-mono bg-neutral-50 p-2 rounded border border-neutral-200 overflow-x-auto max-h-24">
-                            {JSON.stringify(log.newValue, null, 2)}
-                          </pre>
-                        ) : (
-                          <span className="text-xs text-neutral-400 italic">No delta mutation snapshot</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </ResponsiveTable>
         </CardContent>
       </Card>
     </AppShell>
