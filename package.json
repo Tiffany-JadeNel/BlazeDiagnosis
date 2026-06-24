@@ -16,6 +16,9 @@
     "prettier-plugin-organize-imports": "latest"
   },
   "dependencies": {
-    "save-dev": "^0.0.1-security"
+    "lucide-react": "^1.20.0",
+    "zod": "^3.23.8",
+    "drizzle-orm": "latest",
+    "@neondatabase/serverless": "latest"
   }
 }

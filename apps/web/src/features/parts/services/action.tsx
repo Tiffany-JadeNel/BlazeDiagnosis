@@ -1,38 +1,30 @@
-import { eq } from 'drizzle-orm';
+'use server';
 
+import { revalidatePath } from 'next/cache';
 import { db } from '@/db/client';
 import { parts } from '@/db/schema/parts';
-import { createPartsCatalogSchema } from '@/features/parts/schemas/partsCatalogSchema';
-import {
-  apiCreated,
-  apiOk,
-  handleApiError,
-} from '@/lib/api/response';
+import { eq } from 'drizzle-orm';
 import { requireTenantContext } from '@/lib/tenancy/tenantContext';
+import { createPartsCatalogSchema, CreatePartsCatalogInput } from '../schemas/partsCatalogSchema';
 
-const routeName = '/api/parts';
-
-export async function GET() {
+export async function getPartsCatalogAction() {
   try {
     const tenant = await requireTenantContext();
-
-    const catalog = await db
+    return await db
       .select()
       .from(parts)
       .where(eq(parts.tenantId, tenant.tenantId));
-
-    return apiOk({ catalog }, { meta: { count: catalog.length } });
-  } catch (error) {
-    return handleApiError(`GET ${routeName}`, error);
+  } catch (error: any) {
+    throw new Error(error.message || 'Failed to fetch catalog records.');
   }
 }
 
-export async function POST(request: Request) {
+export async function addPartToCatalogAction(payload: CreatePartsCatalogInput) {
   try {
     const tenant = await requireTenantContext();
-    const input = createPartsCatalogSchema.parse(await request.json());
+    const input = createPartsCatalogSchema.parse(payload);
 
-    const [newPart] = await db
+    const [item] = await db
       .insert(parts)
       .values({
         name: input.name,
@@ -48,8 +40,9 @@ export async function POST(request: Request) {
       })
       .returning();
 
-    return apiCreated({ partId: newPart.id });
-  } catch (error) {
-    return handleApiError(`POST ${routeName}`, error);
+    revalidatePath('/parts');
+    return { success: true, data: item };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Failed to append to stock logs.' };
   }
 }

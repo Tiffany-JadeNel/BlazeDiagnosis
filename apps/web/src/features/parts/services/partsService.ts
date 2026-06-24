@@ -1,83 +1,42 @@
-import { and, eq } from 'drizzle-orm';
-
-import { db } from '@/db/client';
-import { partsOrders, partsRequests, supplierResponses } from '@/db/schema';
-import { requireTenantPermission } from '@/lib/authorization/guards';
-
-export async function createPartsRequest(
-  tenantId: string,
-  jobCardId: string,
-  notes?: string,
-) {
-  await requireTenantPermission(tenantId, 'parts.request');
-
-  const [request] = await db
-    .insert(partsRequests)
-    .values({ tenantId, jobCardId, notes })
-    .returning();
-  return request;
+export interface ICreatePartPayload {
+  name: string;
+  partNumber: string;
+  sku?: string;
+  brand?: string;
+  category?: string;
+  description?: string;
+  costPrice?: string;
+  retailPrice?: string;
+  quantityOnHand?: string;
 }
 
-export async function approveSupplierResponse(
-  tenantId: string,
-  supplierResponseId: string,
-) {
-  await requireTenantPermission(tenantId, 'parts.approve_supplier_quote');
+const fetchWithErrorHandling = async (url: string, options?: RequestInit) => {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    throw new Error(`HTTP error! status: ${res.status}`);
+  }
+  return res.json();
+};
 
-  return db.transaction(async (tx) => {
-    const [response] = await tx
-      .select()
-      .from(supplierResponses)
-      .where(
-        and(
-          eq(supplierResponses.tenantId, tenantId),
-          eq(supplierResponses.id, supplierResponseId),
-        ),
-      )
-      .limit(1);
+export const getTenantCatalogParts = async (): Promise<ICreatePartPayload[]> => {
+  try {
+    const data = await fetchWithErrorHandling('/api/parts');
+    return data.catalog || [];
+  } catch (error: any) {
+    throw new Error(error.message || 'Failed to sync with catalog endpoint');
+  }
+};
 
-    if (!response) {
-      throw new Error('Supplier response not found.');
-    }
+export const createCatalogPartEntry = async (data: ICreatePartPayload): Promise<ICreatePartPayload> => {
+  try {
+    const options: RequestInit = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    };
+    return await fetchWithErrorHandling('/api/parts', options);
+  } catch (error: any) {
+    throw new Error(error.message || 'Failed to persist part mutation');
+  }
+};
 
-    const [request] = await tx
-      .select()
-      .from(partsRequests)
-      .where(
-        and(
-          eq(partsRequests.tenantId, tenantId),
-          eq(partsRequests.id, response.partsRequestId),
-        ),
-      )
-      .limit(1);
-
-    if (!request) {
-      throw new Error('Parts request not found for supplier response.');
-    }
-
-    await tx
-      .update(supplierResponses)
-      .set({ status: 'accepted' })
-      .where(
-        and(
-          eq(supplierResponses.tenantId, tenantId),
-          eq(supplierResponses.id, supplierResponseId),
-        ),
-      );
-
-    const [order] = await tx
-      .insert(partsOrders)
-      .values({
-        tenantId,
-        supplierResponseId: response.id,
-        supplierId: response.supplierId,
-        jobCardId: request.jobCardId,
-        status: 'ordered',
-        orderedAt: new Date(),
-        expectedDeliveryAt: response.eta,
-      })
-      .returning();
-
-    return order;
-  });
-}
