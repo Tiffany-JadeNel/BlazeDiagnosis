@@ -35,7 +35,7 @@ export async function fetchCustomerById(customerId: string) {
 }
 
 export async function fetchVehiclesForCustomer(customerId: string) {
-  return requestJson<{ vehicles: unknown[] }>(`/api/vehicles/${customerId}`, {
+  return requestJson<{ vehicles: unknown[] }>(`/api/vehicles/customer/${customerId}`, {
     errorMessage: 'Failed to fetch customer vehicles.',
   });
 }
