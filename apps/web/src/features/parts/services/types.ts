@@ -8,7 +8,7 @@ export type NewDBPart = InferInsertModel<typeof parts>;
 export type DBPartsRequest = InferSelectModel<typeof partsRequests>;
 export type DBPartsRequestItem = InferSelectModel<typeof partsRequestItems>;
 
-// Unified Frontend System Operation DTO Payloads
+
 export interface ICreatePartPayload {
   name: string;
   partNumber: string;
