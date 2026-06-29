@@ -1,9 +1,14 @@
-import { eq } from 'drizzle-orm';
+import { InferSelectModel, InferInsertModel } from 'drizzle-orm';
+import { parts, partsRequests, partsRequestItems } from '@/db/schema/parts';
 
-import { db } from '@/db/client';
-import { parts } from '@/db/schema/parts';
-import { requireTenantContext } from '@/lib/tenancy/tenantContext';
 
+export type DBPart = InferSelectModel<typeof parts>;
+export type NewDBPart = InferInsertModel<typeof parts>;
+
+export type DBPartsRequest = InferSelectModel<typeof partsRequests>;
+export type DBPartsRequestItem = InferSelectModel<typeof partsRequestItems>;
+
+// Unified Frontend System Operation DTO Payloads
 export interface ICreatePartPayload {
   name: string;
   partNumber: string;
@@ -16,33 +21,13 @@ export interface ICreatePartPayload {
   quantityOnHand?: string;
 }
 
-export async function getTenantCatalogParts() {
-  const tenant = await requireTenantContext();
-
-  return await db
-    .select()
-    .from(parts)
-    .where(eq(parts.tenantId, tenant.tenantId));
-}
-
-export async function createCatalogPartEntry(data: ICreatePartPayload) {
-  const tenant = await requireTenantContext();
-
-  const newPart = await db
-    .insert(parts)
-    .values({
-      name: data.name,
-      partNumber: data.partNumber,
-      sku: data.sku,
-      brand: data.brand,
-      category: data.category,
-      description: data.description,
-      costPrice: data.costPrice,
-      retailPrice: data.retailPrice,
-      quantityOnHand: data.quantityOnHand,
-      tenantId: tenant.tenantId,
-    })
-    .returning();
-
-  return newPart[0];
+export interface ICreatePartsRequestPayload {
+  jobCardId: string;
+  staffId?: string;
+  notes?: string;
+  items: {
+    partId: string;
+    quantity: string;
+    notes?: string;
+  }[];
 }
